@@ -185,7 +185,7 @@ async function createDefaultAdmin() {
 
     await Admin.create({
       email: process.env.ADMIN_EMAIL || "pnsscholarshipsystem@gmail.com",
-      phone: process.env.ADMIN_PHONE || "7326032546",
+      phone: process.env.ADMIN_PHONE || "7978609045",
       password: hashedPassword
     });
 
