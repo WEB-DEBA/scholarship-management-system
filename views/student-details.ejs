@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="admin-dashboard">
+
+  <div class="admin-box">
+
+    <div class="box-heading">
+
+      <span>🎓</span>
+
+      <div>
+        <h2>Student Full Details</h2>
+        <p>Complete scholarship application information</p>
+      </div>
+
+    </div>
+
+    <div class="details-grid">
+
+      <div class="detail-card">
+        <h3>Personal Details</h3>
+
+        <p><b>Name:</b> <%= student.name %></p>
+        <p><b>Father:</b> <%= student.fatherName %></p>
+        <p><b>Mother:</b> <%= student.motherName %></p>
+        <p><b>DOB:</b> <%= student.dob %></p>
+        <p><b>Gender:</b> <%= student.gender %></p>
+        <p><b>Phone:</b> <%= student.phone %></p>
+        <p><b>Email:</b> <%= student.email %></p>
+        <p><b>Aadhaar:</b> <%= student.aadhaar %></p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Academic Details</h3>
+
+        <p><b>College:</b> <%= student.college %></p>
+        <p><b>Course:</b> <%= student.course %></p>
+        <p><b>Branch:</b> <%= student.branch %></p>
+        <p><b>Semester:</b> <%= student.semester %></p>
+        <p><b>Roll No:</b> <%= student.rollNo %></p>
+        <p><b>Registration:</b> <%= student.registrationNo %></p>
+        <p><b>Last Exam:</b> <%= student.lastExam %></p>
+        <p><b>Percentage:</b> <%= student.percentage %></p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Bank Details</h3>
+
+        <p><b>Bank:</b> <%= student.bankName %></p>
+        <p><b>Account:</b> <%= student.accountNo %></p>
+        <p><b>IFSC:</b> <%= student.ifsc %></p>
+        <p><b>Holder:</b> <%= student.accountHolder %></p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Address Details</h3>
+
+        <p><b>Village:</b> <%= student.village %></p>
+        <p><b>Post:</b> <%= student.post %></p>
+        <p><b>District:</b> <%= student.district %></p>
+        <p><b>State:</b> <%= student.state %></p>
+        <p><b>Pincode:</b> <%= student.pincode %></p>
+      </div>
+
+      <div class="detail-card">
+        <h3>Scholarship Details</h3>
+
+        <p><b>Status:</b> <%= student.status %></p>
+        <p><b>Income:</b> ₹<%= student.income %></p>
+        <p><b>Category:</b> <%= student.caste %></p>
+        <p><b>Applied:</b> <%= student.appliedDate %></p>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>

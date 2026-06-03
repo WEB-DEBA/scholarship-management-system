@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Audit Logs</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="admin-dashboard">
+  <div class="admin-hero">
+    <div>
+      <p class="admin-tag">Security Logs</p>
+      <h1>Audit Logs</h1>
+      <p>All admin actions are recorded here.</p>
+    </div>
+  </div>
+
+  <div class="admin-box full-box">
+    <% logs.forEach(log => { %>
+      <div class="admin-notice-card">
+        <h3><%= log.action %></h3>
+        <p><%= log.details || "No details" %></p>
+        <small><%= log.createdAt %></small>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+</body>
+</html>

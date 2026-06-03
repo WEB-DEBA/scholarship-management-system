@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Full Profile</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="premium-profile-page">
+
+  <div class="profile-top-card">
+    <div class="profile-photo-box">
+      <% if (student.photoFile) { %>
+        <img src="/uploads/<%= student.photoFile %>" alt="Student Photo">
+      <% } else { %>
+        <div class="profile-avatar">
+          <%= student.name ? student.name.charAt(0).toUpperCase() : "S" %>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="profile-main-info">
+      <p class="profile-tag">Student Application Profile</p>
+      <h1><%= student.name || "Student Name" %></h1>
+
+      <div class="profile-badges">
+        <span>Reg: <%= student.registrationNo || "N/A" %></span>
+        <span>Aadhaar: <%= student.aadhaar || "N/A" %></span>
+        <span class="badge-status"><%= student.status || "Pending" %></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Personal Details</h2>
+  </div>
+
+  <div class="premium-info-grid">
+    <div><b>Father Name</b><p><%= student.fatherName || "N/A" %></p></div>
+    <div><b>Mother Name</b><p><%= student.motherName || "N/A" %></p></div>
+    <div><b>Date of Birth</b><p><%= student.dob || "N/A" %></p></div>
+    <div><b>Gender</b><p><%= student.gender || "N/A" %></p></div>
+    <div><b>Phone</b><p><%= student.phone || "N/A" %></p></div>
+    <div><b>Email</b><p><%= student.email || "N/A" %></p></div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Academic Details</h2>
+  </div>
+
+  <div class="premium-info-grid">
+    <div><b>College</b><p><%= student.college || "N/A" %></p></div>
+    <div><b>Course</b><p><%= student.course || "N/A" %></p></div>
+    <div><b>Branch</b><p><%= student.branch || "N/A" %></p></div>
+    <div><b>Semester</b><p><%= student.semester || "N/A" %></p></div>
+    <div><b>Roll No</b><p><%= student.rollNo || "N/A" %></p></div>
+    <div><b>Last Exam</b><p><%= student.lastExam || "N/A" %></p></div>
+    <div><b>Percentage / CGPA</b><p><%= student.percentage || "N/A" %></p></div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Category & Income</h2>
+  </div>
+
+  <div class="premium-info-grid">
+    <div><b>Category</b><p><%= student.caste || "N/A" %></p></div>
+    <div><b>Caste Certificate No</b><p><%= student.casteCertificate || "N/A" %></p></div>
+    <div><b>Annual Income</b><p>₹<%= student.income || "N/A" %></p></div>
+    <div><b>Income Certificate No</b><p><%= student.incomeCertificate || "N/A" %></p></div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Bank Details</h2>
+  </div>
+
+  <div class="premium-info-grid">
+    <div><b>Bank Name</b><p><%= student.bankName || "N/A" %></p></div>
+    <div><b>Account No</b><p><%= student.accountNo || "N/A" %></p></div>
+    <div><b>IFSC</b><p><%= student.ifsc || "N/A" %></p></div>
+    <div><b>Account Holder</b><p><%= student.accountHolder || "N/A" %></p></div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Address</h2>
+  </div>
+
+  <div class="premium-info-grid">
+    <div><b>Village / City</b><p><%= student.village || "N/A" %></p></div>
+    <div><b>Post Office</b><p><%= student.post || "N/A" %></p></div>
+    <div><b>District</b><p><%= student.district || "N/A" %></p></div>
+    <div><b>State</b><p><%= student.state || "N/A" %></p></div>
+    <div><b>Pincode</b><p><%= student.pincode || "N/A" %></p></div>
+  </div>
+
+  <div class="profile-section-title">
+    <h2>Uploaded Documents</h2>
+  </div>
+
+  <div class="premium-document-grid">
+    <% if (student.aadhaarFile) { %>
+      <a href="/uploads/<%= student.aadhaarFile %>" target="_blank">📄 Aadhaar Card</a>
+    <% } %>
+
+    <% if (student.casteFile) { %>
+      <a href="/uploads/<%= student.casteFile %>" target="_blank">📄 Caste Certificate</a>
+    <% } %>
+
+    <% if (student.incomeFile) { %>
+      <a href="/uploads/<%= student.incomeFile %>" target="_blank">📄 Income Certificate</a>
+    <% } %>
+
+    <% if (student.photoFile) { %>
+      <a href="/uploads/<%= student.photoFile %>" target="_blank">🖼️ Passport Photo</a>
+    <% } %>
+
+    <% if (student.bankFile) { %>
+      <a href="/uploads/<%= student.bankFile %>" target="_blank">🏦 Bank Passbook</a>
+    <% } %>
+
+    <% if (student.marksheetFile) { %>
+      <a href="/uploads/<%= student.marksheetFile %>" target="_blank">🎓 Marksheet</a>
+    <% } %>
+  </div>
+
+  <div class="profile-actions">
+    <a href="/admin" class="profile-back-btn">Back to Dashboard</a>
+  </div>
+
+</section>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>

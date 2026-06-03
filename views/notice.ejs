@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Notices</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="notice-page">
+  <h1>All Notices</h1>
+
+  <% notices.forEach(n => { %>
+    <div class="notice-box">
+      <h3><%= n.title %></h3>
+      <p><%= n.message %></p>
+      <small><%= n.date %></small>
+    </div>
+  <% }) %>
+</section>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>

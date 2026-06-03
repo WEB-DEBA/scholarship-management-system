@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="/style.css">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="autocomplete" content="off">
+</head>
+<body>
+
+<section class="login-page">
+
+  <div class="login-shape shape1"></div>
+  <div class="login-shape shape2"></div>
+
+  <div class="login-container">
+
+    <div class="login-left">
+
+      <p class="login-tag">
+        Scholarship Admin Portal
+      </p>
+
+      <h1>
+        Secure <br>
+        Admin Dashboard
+      </h1>
+
+      <p>
+        Manage scholarship applications,
+        notices, Aadhaar verification
+        and student records securely.
+      </p>
+
+      <div class="login-features">
+
+        <div class="login-feature">
+          <span>🔒</span>
+          <div>
+            <h3>Secure Login</h3>
+            <p>Protected admin authentication system.</p>
+          </div>
+        </div>
+
+        <div class="login-feature">
+          <span>📢</span>
+          <div>
+            <h3>Manage Notices</h3>
+            <p>Publish scholarship notices instantly.</p>
+          </div>
+        </div>
+
+        <div class="login-feature">
+          <span>🎓</span>
+          <div>
+            <h3>Student Applications</h3>
+            <p>Approve or reject scholarship forms.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="login-right">
+
+      <form
+        action="/login"
+        method="POST"
+        class="premium-login-box"
+        autocomplete="off"
+        novalidate
+      >
+
+        <div class="login-top">
+          <div class="login-icon">👨‍💼</div>
+
+          <h2>Admin Login</h2>
+
+          <p>
+            Enter admin credentials to continue
+          </p>
+        </div>
+
+        <% if (error) { %>
+          <div class="error-box">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <!-- Hidden Autofill Block -->
+        <input
+          type="text"
+          name="fakeusernameremembered"
+          style="display:none"
+        >
+
+        <input
+          type="password"
+          name="fakepasswordremembered"
+          style="display:none"
+        >
+
+        <div class="input-box">
+
+          <label>
+            Email or Phone Number
+          </label>
+
+          <input
+            type="text"
+            name="email"
+            placeholder="Enter admin email or phone"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required
+          >
+
+        </div>
+
+        <div class="input-box">
+
+          <label>
+            Password
+          </label>
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter password"
+            autocomplete="new-password"
+            required
+          >
+
+        </div>
+
+        <div class="login-options">
+
+          <label>
+            <input type="checkbox">
+            Remember Me
+          </label>
+
+          <a href="/forgot-password">
+            Forgot Password?
+          </a>
+
+        </div>
+
+        <button
+          type="submit"
+          class="login-btn"
+        >
+          Login Dashboard
+        </button>
+
+        <a
+          href="/"
+          class="back-home"
+        >
+          ← Back to Homepage
+        </a>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="admin-dashboard">
+  <div class="admin-hero">
+    <div>
+      <p class="admin-tag">Student Portal</p>
+      <h1>Welcome, <%= student.name %></h1>
+      <p>Track your scholarship application and download receipt.</p>
+    </div>
+
+    <div class="admin-actions">
+      <a href="/student/receipt/<%= student._id %>" class="logout-btn">Download Receipt</a>
+      <a href="/student/logout" class="logout-btn">Logout</a>
+    </div>
+  </div>
+
+  <div class="admin-box full-box">
+    <h2>Application Details</h2>
+    <p><b>Registration No:</b> <%= student.registrationNo %></p>
+    <p><b>Aadhaar:</b> <%= student.aadhaar %></p>
+    <p><b>Phone:</b> <%= student.phone %></p>
+    <p><b>College:</b> <%= student.college %></p>
+    <p><b>Course:</b> <%= student.course %></p>
+    <p><b>Branch:</b> <%= student.branch %></p>
+    <p><b>Semester:</b> <%= student.semester %></p>
+    <p><b>Status:</b> <%= student.status %></p>
+    <p><b>Payment:</b> <%= student.paymentStatus %></p>
+  </div>
+</section>
+
+</body>
+</html>

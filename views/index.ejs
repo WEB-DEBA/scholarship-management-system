@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scholarship Management System</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
+<link rel="manifest" href="images/site.webmanifest" />
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="hero-3d">
+  <div class="hero-bg-shape shape-one"></div>
+  <div class="hero-bg-shape shape-two"></div>
+
+  <div class="hero-left">
+    <p class="tag-3d">SC/ST Digital Scholarship Portal</p>
+    <h1>Smart Scholarship Management System</h1>
+    <p>
+      <b>Apply online, verify Registration number, track scholarship status and manage student records with a modern digital dashboard.</b>
+    </p>
+    
+
+    <div class="hero-buttons">
+      <a href="/apply">Apply Now</a>
+      <a href="/check" class="outline-3d">Check Status</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="dashboard-3d">
+      <div class="dash-top">
+        <span></span><span></span><span></span>
+      </div>
+
+      <div class="dash-card main-card">
+        <h3>Scholarship Status</h3>
+        <h2>Success / Pending / Failed</h2>
+      </div>
+
+      <div class="mini-grid">
+        <div class="mini-card">🎓 Apply</div>
+        <div class="mini-card">🔍 Registration</div>
+        <div class="mini-card">📢 Notice</div>
+        <div class="mini-card">👨‍💼 Admin</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats stats-3d">
+  <div><h2>500+</h2><p>Registered Students</p></div>
+  <div><h2>100%</h2><p>Digital Records</p></div>
+  <div><h2>24/7</h2><p>Status Tracking</p></div>
+  <div><h2>Fast</h2><p>Admin Verification</p></div>
+</section>
+
+<section class="features premium-features">
+  <h2>Premium Portal Features</h2>
+
+  <div class="cards">
+    <div class="card glass-card">
+      <span>🎓</span>
+      <h3>Scholarship Apply</h3>
+      <p>Students can submit complete scholarship details online.</p>
+    </div>
+
+    <div class="card glass-card">
+      <span>🔍</span>
+      <h3> Status Check</h3>
+      <p>Track application status using Registration number instantly.</p>
+    </div>
+
+    <div class="card glass-card">
+      <span>📢</span>
+      <h3>Dynamic Notices</h3>
+      <p>Admin can publish important scholarship notices anytime.</p>
+    </div>
+
+    <div class="card glass-card">
+      <span>👨‍💼</span>
+      <h3>Admin Dashboard</h3>
+      <p>Verify, approve, reject and manage student applications.</p>
+    </div>
+  </div>
+</section>
+
+<section class="college-slider-section">
+  <div class="slider-heading">
+    <p>PNS School of Engineering & Technology</p>
+    <h2>Official College Highlights</h2>
+    <span>Campus activities, technical events and student moments</span>
+  </div>
+
+  <div class="college-slider">
+    <div class="college-slide active" style="background-image:url('images/computer-science.jpg')">
+      <div class="slide-content">
+        <h3>COMPUTER LAB</h3>
+        <p>Computer laboratory equipped with the latest hardware and software for practical learning.</p>
+      </div>
+    </div>
+
+    <div class="college-slide" style="background-image:url('images/photo-126.jpeg')">
+      <div class="slide-content">
+        <h3>Swatchha Bharat Abhiyan</h3>
+        <p>Swachh Bharat Abhiyan is a nationwide campaign to promote cleanliness, hygiene, and a healthier environment across India.</p>
+      </div>
+    </div>
+
+    <div class="college-slide" style="background-image:url('images/photo-136.jpg')">
+      <div class="slide-content">
+        <h3>State Level Technical Seminar Photos 2024</h3>
+        <p>State Level Technical Seminar 2024 – Inspiring innovation, technical excellence, and knowledge sharing among future engineers. 🚀</p>
+      </div>
+    </div>
+    <div class="college-slide" style="background-image:url('images/photo-170.jpg')">
+      <div class="slide-content">
+        <h3>Mega Health Camp</h3>
+        <p>Annual health camp providing free medical check-ups and health awareness programs to the community.</p>
+      </div>
+    </div>
+
+  </div>
+</section>  
+
+
+<script>
+let collegeSlides = document.querySelectorAll(".college-slide");
+let collegeIndex = 0;
+
+setInterval(() => {
+  collegeSlides[collegeIndex].classList.remove("active");
+  collegeIndex = (collegeIndex + 1) % collegeSlides.length;
+  collegeSlides[collegeIndex].classList.add("active");
+}, 3500);
+</script>
+
+
+<section class="latest latest-premium">
+  <h2>Latest Scholarship Notices</h2>
+
+  <div class="notice-grid">
+    <% notices.slice(0,3).forEach(n => { %>
+      <div class="notice-box notice-3d">
+        <div>
+          <span class="notice-tag"><%= n.category || "Notice" %></span>
+          <span class="priority"><%= n.priority || "New" %></span>
+        </div>
+        <h3><%= n.title %></h3>
+        <p><%= n.message %></p>
+        <small><%= n.date %></small>
+      </div>
+    <% }) %>
+  </div>
+
+  <a href="/notice" class="notice-btn">View All Notices</a>
+</section>
+<section class="process-3d">
+  <h2>How It Works</h2>
+
+  <div class="process-flow">
+    <div class="flow-card">
+      <b>01</b>
+      <h3>Apply Online</h3>
+      <p>Fill personal, academic, bank and document details.</p>
+    </div>
+
+    <div class="flow-card">
+      <b>02</b>
+      <h3>Admin Verify</h3>
+      <p>Admin checks details and updates application status.</p>
+    </div>
+
+    <div class="flow-card">
+      <b>03</b>
+      <h3>Check Result</h3>
+      <p>Student checks status using Registration number.</p>
+    </div>
+  </div>
+</section>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>

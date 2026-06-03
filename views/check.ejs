@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Check Scholarship Status</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<%- include("partials/header") %>
+
+<section class="status-hero">
+  <div class="status-content">
+    <p class="status-tag">Scholarship Verification Portal</p>
+    <h1>Check Scholarship & Payment Status</h1>
+    <p>Enter Your Registration Number to view full scholarship details.</p>
+  </div>
+</section>
+
+<section class="status-section">
+  <div class="status-container">
+
+    <div class="status-left">
+      <div class="status-info-card">
+        <span>🆔</span>
+        <h3>Registration Search</h3>
+        <p>Enter registration number to check scholarship payment record.</p>
+      </div>
+
+      <div class="status-info-card">
+        <span>🔍</span>
+        <h3>Application Status</h3>
+        <p>Check application and payment status in one place.</p>
+      </div>
+    </div>
+
+    <div class="status-right">
+
+      <form action="/check" method="POST" class="status-form">
+        <div class="status-form-top">
+          <div class="status-icon">📄</div>
+          <h2>Status Checker</h2>
+          <p>Enter Registration Number</p>
+        </div>
+
+        <div class="input-group">
+          <label>Registration Number</label>
+          <input
+            type="text"
+            name="searchValue"
+            placeholder="Enter Registration Number"
+            required
+          >
+        </div>
+
+        <button type="submit" class="status-btn">Check Details</button>
+      </form>
+
+      <% if (searched) { %>
+
+        <% if (student || payment) { %>
+
+          <div class="result-premium">
+
+            <div class="result-top">
+              <div class="student-avatar">👨‍🎓</div>
+              <div>
+                <h2><%= student ? student.name : payment.name %></h2>
+                <p>Scholarship Record Found</p>
+              </div>
+            </div>
+
+            <% if (student) { %>
+              <h3 class="result-heading">Application Details</h3>
+
+              <div class="result-grid">
+                <div class="result-item">
+                  <span>Name</span>
+                  <h4><%= student.name || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Aadhaar</span>
+                  <h4><%= student.aadhaar || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Registration No</span>
+                  <h4><%= student.registrationNo || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Course / Branch</span>
+                  <h4><%= student.course || "N/A" %> / <%= student.branch || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Semester</span>
+                  <h4><%= student.semester || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>College</span>
+                  <h4><%= student.college || "N/A" %></h4>
+                </div>
+              </div>
+
+              <div class="status-result-box">
+                <p>Application Status</p>
+                <span class="status <%= student.status.toLowerCase() %>">
+                  <%= student.status %>
+                </span>
+              </div>
+            <% } %>
+
+            <% if (payment) { %>
+              <h3 class="result-heading">Payment Details</h3>
+
+              <div class="result-grid">
+
+                <div class="result-item">
+                  <span>Registration No</span>
+                  <h4><%= payment.registrationNo || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Roll No</span>
+                  <h4><%= payment.rollNo || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Semester</span>
+                  <h4><%= payment.semester || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Branch</span>
+                  <h4><%= payment.branch || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Total Course Fee</span>
+                  <h4>₹<%= payment.totalFee || 0 %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Paid Amount</span>
+                  <h4>₹<%= payment.amount || 0 %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Remaining Amount</span>
+                  <h4>₹<%= Number(payment.totalFee || 0) - Number(payment.amount || 0) %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Payment Date</span>
+                  <h4><%= payment.paymentDate || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Payment Mode</span>
+                  <h4><%= payment.paymentMode || "N/A" %></h4>
+                </div>
+
+                <div class="result-item">
+                  <span>Money Receipt No</span>
+                  <h4>PNS-<%= new Date().getFullYear() %>-<%= payment.id || "N/A" %></h4>
+                </div>
+
+              </div>
+
+              <div class="status-result-box">
+                <p>Payment Status</p>
+                <span class="status <%= payment.status.toLowerCase() %>">
+                  <%= payment.status %>
+                </span>
+              </div>
+
+              <% if (payment.remark) { %>
+                <div class="remark-box">
+                  <b>Remark:</b> <%= payment.remark %>
+                </div>
+              <% } %>
+
+            <% } %>
+
+          </div>
+
+        <% } else { %>
+
+          <div class="not-found-box">
+            <div class="not-found-icon">❌</div>
+            <h2>No Record Found</h2>
+            <p>Please check Registration Number and try again.</p>
+          </div>
+
+        <% } %>
+
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>
