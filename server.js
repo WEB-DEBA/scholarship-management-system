@@ -312,47 +312,46 @@ app.post("/apply", upload.fields([
       error: "⚠️ Something went wrong. Please try again."
     });
   }
-});
-app.get("/check", (req, res) => {
+});app.get("/check", async (req, res) => {
   res.render("check", {
     student: null,
     payment: null,
     searched: false
   });
 });
-app.get("/check", async (req, res) => {
+
+app.post("/check", async (req, res) => {
   try {
-    const searchValue = req.query.reg || "";
 
-    let student = null;
-    let payment = null;
-    let searched = false;
+    const searchValue = (req.body.searchValue || "").trim();
 
-    if (searchValue) {
-      searched = true;
+    const student = await Student.findOne({
+      $or: [
+        { registrationNo: searchValue },
+        { aadhaar: searchValue }
+      ],
+      isDeleted: false
+    }).lean();
 
-      student = await Student.findOne({
-        $or: [
-          { aadhaar: searchValue },
-          { registrationNo: searchValue }
-        ],
-        isDeleted: false
-      }).lean();
-
-      payment = await Payment.findOne({
-        registrationNo: searchValue
-      }).lean();
-    }
+    const payment = await Payment.findOne({
+      registrationNo: searchValue
+    }).lean();
 
     res.render("check", {
       student,
       payment,
-      searched
+      searched: true
     });
 
   } catch (error) {
+
     console.log("CHECK ERROR:", error);
-    res.send("Status check failed");
+
+    res.render("check", {
+      student: null,
+      payment: null,
+      searched: true
+    });
   }
 });
 

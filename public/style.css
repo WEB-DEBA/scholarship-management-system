@@ -3645,3 +3645,99 @@ input[type="file"] {
     font-size: 15px;
   }
 }
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .hero-3d,
+  .stats,
+  .cards,
+  .mini-grid,
+  .notice-grid,
+  .process-flow,
+  .form-grid,
+  .result-grid,
+  .admin-cards,
+  .status-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .hero-3d {
+    padding: 55px 18px !important;
+    min-height: auto !important;
+  }
+
+  .hero-left h1 {
+    font-size: 36px !important;
+    line-height: 1.15 !important;
+  }
+
+  .hero-left p {
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+    max-width: 100% !important;
+  }
+
+  .dashboard-3d {
+    transform: none !important;
+    width: 100% !important;
+    margin-top: 30px !important;
+  }
+
+  .stats,
+  .features,
+  .latest,
+  .form-section,
+  .status-section {
+    padding: 35px 18px !important;
+  }
+
+  .stats div,
+  .card,
+  .mini-card,
+  .notice-box,
+  .flow-card {
+    width: 100% !important;
+    padding: 24px 18px !important;
+  }
+
+  .premium-form,
+  .big-form,
+  .application-form {
+    width: 94% !important;
+    max-width: 100% !important;
+    padding: 25px 16px !important;
+    margin: 30px auto !important;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100% !important;
+    height: 58px !important;
+    font-size: 16px !important;
+  }
+
+  input[type="file"] {
+    height: auto !important;
+    padding: 15px !important;
+  }
+
+  .big-form h3 {
+    font-size: 21px !important;
+    display: block !important;
+  }
+
+  .submit-btn,
+  button {
+    width: 100% !important;
+    height: 58px !important;
+  }
+
+  .footer {
+    padding: 45px 18px !important;
+  }
+}
