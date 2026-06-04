@@ -392,12 +392,16 @@
 
     <!-- SUBMIT -->
 
-    <button
-      type="submit"
-      class="application-submit"
-    >
-      Submit Scholarship Application
-    </button>
+    <button type="submit" id="submitBtn" class="application-submit">
+  Submit Application
+</button>
+
+<script>
+document.querySelector("form").addEventListener("submit", function() {
+  document.getElementById("submitBtn").disabled = true;
+  document.getElementById("submitBtn").innerText = "Submitting...";
+});
+</script>
 
   </form>
 

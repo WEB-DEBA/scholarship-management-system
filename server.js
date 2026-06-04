@@ -247,10 +247,14 @@ app.post("/apply", upload.fields([
   { name: "marksheetFile", maxCount: 1 }
 ]), async (req, res) => {
   try {
-    const exists = await Student.findOne({
+    const regNo = (req.body.registrationNo || "").trim();
+const aadhaar = (req.body.aadhaar || "").trim();
+
+const exists = await Student.findOne({
+  isDeleted: false,
   $or: [
-    { aadhaar: req.body.aadhaar },
-    { registrationNo: req.body.registrationNo }
+    { registrationNo: regNo },
+    { aadhaar: aadhaar }
   ]
 });
 
