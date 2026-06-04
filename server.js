@@ -248,15 +248,15 @@ app.post("/apply", upload.fields([
 ]), async (req, res) => {
   try {
     const regNo = (req.body.registrationNo || "").trim();
-const aadhaar = (req.body.aadhaar || "").trim();
+    const aadhaar = (req.body.aadhaar || "").trim();
 
-const exists = await Student.findOne({
-  isDeleted: false,
-  $or: [
-    { registrationNo: regNo },
-    { aadhaar: aadhaar }
-  ]
-});
+    const exists = await Student.findOne({
+      isDeleted: false,
+      $or: [
+        { registrationNo: regNo },
+        { aadhaar: aadhaar }
+      ]
+    });
 
     if (exists) {
       return res.render("apply", {
@@ -266,6 +266,8 @@ const exists = await Student.findOne({
 
     const newStudent = await Student.create({
       ...req.body,
+      registrationNo: regNo,
+      aadhaar: aadhaar,
       aadhaarFile: req.files.aadhaarFile?.[0]?.filename || "",
       casteFile: req.files.casteFile?.[0]?.filename || "",
       incomeFile: req.files.incomeFile?.[0]?.filename || "",
@@ -278,44 +280,39 @@ const exists = await Student.findOne({
       appliedDate: new Date().toLocaleDateString()
     });
 
-    try {
-      await mailTransporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.ADMIN_EMAIL || "pnsscholarshipsystem@gmail.com",
-        subject: "New Scholarship Application Submitted",
-        html: `
-          <h2>New Scholarship Application</h2>
-          <p><b>Name:</b> ${newStudent.name || "N/A"}</p>
-          <p><b>Registration No:</b> ${newStudent.registrationNo || "N/A"}</p>
-          <p><b>Phone:</b> ${newStudent.phone || "N/A"}</p>
-          <p><b>Branch:</b> ${newStudent.branch || "N/A"}</p>
-          <p><b>Semester:</b> ${newStudent.semester || "N/A"}</p>
-        `
-      });
-    } catch (mailError) {
-      console.log("Apply email failed:", mailError.message);
-    }
-
-    res.redirect("/check");
-
-  } catch (error) {
-
-  console.log(error);
-
-  if (error.code === 11000) {
-
-    return res.render("apply", {
-      error: "⚠️ This Registration Number or Aadhaar Number is already registered."
+    // Email background me jayega, page load block nahi karega
+    mailTransporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL || "pnsscholarshipsystem@gmail.com",
+      subject: "New Scholarship Application Submitted",
+      html: `
+        <h2>New Scholarship Application</h2>
+        <p><b>Name:</b> ${newStudent.name || "N/A"}</p>
+        <p><b>Registration No:</b> ${newStudent.registrationNo || "N/A"}</p>
+        <p><b>Phone:</b> ${newStudent.phone || "N/A"}</p>
+        <p><b>Branch:</b> ${newStudent.branch || "N/A"}</p>
+        <p><b>Semester:</b> ${newStudent.semester || "N/A"}</p>
+      `
+    }).catch(err => {
+      console.log("Apply email failed:", err.message);
     });
 
+    return res.redirect(`/check?reg=${encodeURIComponent(regNo)}`);
+
+  } catch (error) {
+    console.log("APPLY ERROR:", error);
+
+    if (error.code === 11000) {
+      return res.render("apply", {
+        error: "⚠️ This Registration Number or Aadhaar Number is already registered."
+      });
+    }
+
+    return res.render("apply", {
+      error: "⚠️ Something went wrong. Please try again."
+    });
   }
-
-  res.render("apply", {
-    error: "⚠️ Something went wrong. Please try again."
-  });
-}
 });
-
 app.get("/check", (req, res) => {
   res.render("check", {
     student: null,
@@ -323,31 +320,39 @@ app.get("/check", (req, res) => {
     searched: false
   });
 });
-
-app.post("/check", async (req, res) => {
+app.get("/check", async (req, res) => {
   try {
-    const searchValue = req.body.searchValue || req.body.aadhaar;
+    const searchValue = req.query.reg || "";
 
-    const student = await Student.findOne({
-      $or: [
-        { aadhaar: searchValue },
-        { registrationNo: searchValue }
-      ],
-      isDeleted: false
-    }).lean();
+    let student = null;
+    let payment = null;
+    let searched = false;
 
-    const payment = await Payment.findOne({
-      registrationNo: searchValue
-    }).lean();
+    if (searchValue) {
+      searched = true;
+
+      student = await Student.findOne({
+        $or: [
+          { aadhaar: searchValue },
+          { registrationNo: searchValue }
+        ],
+        isDeleted: false
+      }).lean();
+
+      payment = await Payment.findOne({
+        registrationNo: searchValue
+      }).lean();
+    }
 
     res.render("check", {
       student,
       payment,
-      searched: true
+      searched
     });
+
   } catch (error) {
-    console.log(error);
-    res.send("Search failed");
+    console.log("CHECK ERROR:", error);
+    res.send("Status check failed");
   }
 });
 
@@ -764,8 +769,7 @@ app.post("/admin/delete/:id", isAdmin, async (req, res) => {
   await addLog("Student Soft Deleted", req.params.id, "Moved to deleted records");
 
   res.redirect("/admin");
-});
-app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
+});app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
   try {
     const student = await Student.findById(req.params.id).lean();
 
@@ -773,9 +777,11 @@ app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
       return res.send("Application not found");
     }
 
+    const { _id, __v, createdAt, updatedAt, ...studentData } = student;
+
     await SavedApplication.create({
-      ...student,
-      originalStudentId: student._id,
+      ...studentData,
+      originalStudentId: _id.toString(),
       savedAt: new Date().toLocaleString()
     });
 
@@ -783,37 +789,35 @@ app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
       isDeleted: true
     });
 
-    await addLog("Application Saved", req.params.id, "Saved permanent application");
+    await addLog(
+      "Application Saved",
+      req.params.id,
+      "Saved permanent application"
+    );
 
     if (student.email) {
-      try {
-        await mailTransporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: student.email,
-          subject: "Scholarship Application Approved",
-          html: `
-            <h2 style="color:green;">🎉 Application Approved</h2>
-            <p>Dear ${student.name},</p>
-            <p>Your scholarship application has been approved successfully by the administration.</p>
-            <p><b>Registration No:</b> ${student.registrationNo}</p>
-            <p><b>Branch:</b> ${student.branch}</p>
-            <p><b>Semester:</b> ${student.semester}</p>
-            <p>You can now check your application status on the PNS Scholarship Portal.</p>
-            <br>
-            <p>Regards,<br>PNS Scholarship Portal</p>
-          `
-        });
-
-        console.log("✅ Approval Email Sent");
-      } catch (err) {
-        console.log("❌ Approval Email Error:", err.message);
-      }
+      mailTransporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: student.email,
+        subject: "Scholarship Application Approved",
+        html: `
+          <h2 style="color:green;">🎉 Application Approved</h2>
+          <p>Dear ${student.name},</p>
+          <p>Your scholarship application has been approved successfully.</p>
+          <p><b>Registration No:</b> ${student.registrationNo}</p>
+          <p><b>Branch:</b> ${student.branch}</p>
+          <p><b>Semester:</b> ${student.semester}</p>
+        `
+      }).catch(err => {
+        console.log("Approval email failed:", err.message);
+      });
     }
 
-    res.redirect("/admin");
+    return res.redirect("/admin/application-details");
+
   } catch (error) {
-    console.log(error);
-    res.send("Application save failed");
+    console.log("APPLICATION SAVE ERROR:", error);
+    return res.send(error.message);
   }
 });
 
