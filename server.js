@@ -46,11 +46,11 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
 
-  store: MongoStore.create({
-    mongoUrl:
-      process.env.MONGO_URI ||
-      process.env.MONGO_URL
-  }),
+  app.use(session({
+  secret: process.env.SESSION_SECRET || "scholarship_secret_key",
+  resave: false,
+  saveUninitialized: false
+}));
 
   cookie: {
     maxAge: 1000 * 60 * 60 * 24
