@@ -16,7 +16,6 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const QRCode = require("qrcode");
 const archiver = require("archiver");
-const MongoStore = require("connect-mongo");
 
 const app = express();
 const mailTransporter = nodemailer.createTransport({
@@ -42,20 +41,11 @@ app.use(express.json());
 
 app.use(session({
   secret: process.env.SESSION_SECRET || "scholarship_secret_key",
-
-  resave: false,
-  saveUninitialized: false,
-
-  app.use(session({
-  secret: process.env.SESSION_SECRET || "scholarship_secret_key",
   resave: false,
   saveUninitialized: false
 }));
 
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24
-  }
-}));
+
 
 
 const uploadDir = path.join(__dirname, "public", "uploads");
