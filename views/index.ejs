@@ -1,189 +1,177 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Scholarship Management System</title>
+  <title>PNS Scholarship</title>
   <link rel="stylesheet" href="/style.css">
-  <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
-<link rel="shortcut icon" href="images/favicon.ico" />
-<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
-<link rel="manifest" href="images/site.webmanifest" />
 </head>
 <body>
 
-<%- include("partials/header") %>
+<header class="new-header">
+  <div class="new-logo">
+    <span>🎓</span>
+    <b>PNS Scholarship</b>
+  </div>
 
-<section class="hero-3d">
-  <div class="hero-bg-shape shape-one"></div>
-  <div class="hero-bg-shape shape-two"></div>
+  <input type="checkbox" id="menuToggle">
+  <label for="menuToggle" class="hamburger">☰</label>
 
-  <div class="hero-left">
-    <p class="tag-3d">SC/ST Digital Scholarship Portal</p>
-    <h1>Smart Scholarship Management System</h1>
-    <p>
-      <b>Apply online, verify Registration number, track scholarship status and manage student records with a modern digital dashboard.</b>
+  <nav class="new-nav">
+    <a href="/">Home</a>
+    <a href="/apply">Apply</a>
+    <a href="/check">Check Status</a>
+    <a href="/notice">Notice</a>
+    <a href="/login" class="admin-pill">Admin Login</a>
+  </nav>
+</header>
+
+<section class="new-hero">
+  <div class="new-hero-left">
+    <p class="new-tag">SC/ST Digital Scholarship Portal</p>
+
+    <h1>Empowering Students,<br>Building a Better Future</h1>
+
+    <p class="new-hero-text">
+      Apply online, verify registration number, track scholarship status
+      and manage student records easily.
     </p>
-    
 
-    <div class="hero-buttons">
-      <a href="/apply">Apply Now</a>
-      <a href="/check" class="outline-3d">Check Status</a>
+    <div class="new-hero-buttons">
+      <a href="/apply" class="primary-btn">Apply Now →</a>
+      <a href="/check" class="outline-btn">Check Status →</a>
     </div>
   </div>
 
-  <div class="hero-right">
-    <div class="dashboard-3d">
-      <div class="dash-top">
-        <span></span><span></span><span></span>
-      </div>
-
-      <div class="dash-card main-card">
-        <h3>Scholarship Status</h3>
-        <h2>Success / Pending / Failed</h2>
-      </div>
-
-      <div class="mini-grid">
-        <div class="mini-card">🎓 Apply</div>
-        <div class="mini-card">🔍 Registration</div>
-        <div class="mini-card">📢 Notice</div>
-        <div class="mini-card">👨‍💼 Admin</div>
+  <div class="new-hero-right">
+    <div class="book-card">
+      <div class="cap">🎓</div>
+      <div class="books">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
     </div>
   </div>
 </section>
 
-<section class="stats stats-3d">
-  <div><h2>500+</h2><p>Registered Students</p></div>
-  <div><h2>100%</h2><p>Digital Records</p></div>
-  <div><h2>24/7</h2><p>Status Tracking</p></div>
-  <div><h2>Fast</h2><p>Admin Verification</p></div>
+<section class="new-stats">
+  <div>
+    <span>🎓</span>
+    <h2>500+</h2>
+    <p>Registered Students</p>
+  </div>
+
+  <div>
+    <span>📄</span>
+    <h2>100%</h2>
+    <p>Digital Process</p>
+  </div>
+
+  <div>
+    <span>🔄</span>
+    <h2>24/7</h2>
+    <p>Status Tracking</p>
+  </div>
+
+  <div>
+    <span>🛡️</span>
+    <h2>Secure</h2>
+    <p>Data Protection</p>
+  </div>
 </section>
 
-<section class="features premium-features">
+<section class="new-section">
+  <p class="section-small">OUR FEATURES</p>
   <h2>Premium Portal Features</h2>
 
-  <div class="cards">
-    <div class="card glass-card">
-      <span>🎓</span>
+  <div class="new-feature-grid">
+    <div class="new-feature-card">
+      <span>📋</span>
       <h3>Scholarship Apply</h3>
       <p>Students can submit complete scholarship details online.</p>
     </div>
 
-    <div class="card glass-card">
+    <div class="new-feature-card">
       <span>🔍</span>
-      <h3> Status Check</h3>
-      <p>Track application status using Registration number instantly.</p>
+      <h3>Status Check</h3>
+      <p>Track application status using registration number.</p>
     </div>
 
-    <div class="card glass-card">
+    <div class="new-feature-card">
       <span>📢</span>
       <h3>Dynamic Notices</h3>
       <p>Admin can publish important scholarship notices anytime.</p>
     </div>
 
-    <div class="card glass-card">
+    <div class="new-feature-card">
       <span>👨‍💼</span>
       <h3>Admin Dashboard</h3>
-      <p>Verify, approve, reject and manage student applications.</p>
+      <p>Verify, approve, reject and manage applications.</p>
     </div>
   </div>
 </section>
 
-<section class="college-slider-section">
-  <div class="slider-heading">
-    <p>PNS School of Engineering & Technology</p>
-    <h2>Official College Highlights</h2>
-    <span>Campus activities, technical events and student moments</span>
+<section class="new-notice-section">
+  <div class="notice-head">
+    <h2>Latest Scholarship Notices</h2>
+    <a href="/notice">View All Notices</a>
   </div>
 
-  <div class="college-slider">
-    <div class="college-slide active" style="background-image:url('images/computer-science.jpg')">
-      <div class="slide-content">
-        <h3>COMPUTER LAB</h3>
-        <p>Computer laboratory equipped with the latest hardware and software for practical learning.</p>
-      </div>
-    </div>
+  <div class="new-notice-list">
+    <% if(notices && notices.length > 0){ %>
+      <% notices.slice(0,3).forEach(n => { %>
+        <div class="new-notice-card">
+          <div>
+            <span class="notice-chip"><%= n.category || "Scholarship" %></span>
+            <span class="priority-chip"><%= n.priority || "High" %></span>
+          </div>
 
-    <div class="college-slide" style="background-image:url('images/photo-126.jpeg')">
-      <div class="slide-content">
-        <h3>Swatchha Bharat Abhiyan</h3>
-        <p>Swachh Bharat Abhiyan is a nationwide campaign to promote cleanliness, hygiene, and a healthier environment across India.</p>
-      </div>
-    </div>
-
-    <div class="college-slide" style="background-image:url('images/photo-136.jpg')">
-      <div class="slide-content">
-        <h3>State Level Technical Seminar Photos 2024</h3>
-        <p>State Level Technical Seminar 2024 – Inspiring innovation, technical excellence, and knowledge sharing among future engineers. 🚀</p>
-      </div>
-    </div>
-    <div class="college-slide" style="background-image:url('images/photo-170.jpg')">
-      <div class="slide-content">
-        <h3>Mega Health Camp</h3>
-        <p>Annual health camp providing free medical check-ups and health awareness programs to the community.</p>
-      </div>
-    </div>
-
-  </div>
-</section>  
-
-
-<script>
-let collegeSlides = document.querySelectorAll(".college-slide");
-let collegeIndex = 0;
-
-setInterval(() => {
-  collegeSlides[collegeIndex].classList.remove("active");
-  collegeIndex = (collegeIndex + 1) % collegeSlides.length;
-  collegeSlides[collegeIndex].classList.add("active");
-}, 3500);
-</script>
-
-
-<section class="latest latest-premium">
-  <h2>Latest Scholarship Notices</h2>
-
-  <div class="notice-grid">
-    <% notices.slice(0,3).forEach(n => { %>
-      <div class="notice-box notice-3d">
-        <div>
-          <span class="notice-tag"><%= n.category || "Notice" %></span>
-          <span class="priority"><%= n.priority || "New" %></span>
+          <h3><%= n.title %></h3>
+          <p><%= n.message %></p>
+          <small>📅 <%= n.date %></small>
         </div>
-        <h3><%= n.title %></h3>
-        <p><%= n.message %></p>
-        <small><%= n.date %></small>
+      <% }) %>
+    <% } else { %>
+      <div class="new-notice-card">
+        <span class="notice-chip">Scholarship</span>
+        <span class="priority-chip">High</span>
+        <h3>No Notice Available</h3>
+        <p>Latest scholarship notice will appear here.</p>
       </div>
-    <% }) %>
-  </div>
-
-  <a href="/notice" class="notice-btn">View All Notices</a>
-</section>
-<section class="process-3d">
-  <h2>How It Works</h2>
-
-  <div class="process-flow">
-    <div class="flow-card">
-      <b>01</b>
-      <h3>Apply Online</h3>
-      <p>Fill personal, academic, bank and document details.</p>
-    </div>
-
-    <div class="flow-card">
-      <b>02</b>
-      <h3>Admin Verify</h3>
-      <p>Admin checks details and updates application status.</p>
-    </div>
-
-    <div class="flow-card">
-      <b>03</b>
-      <h3>Check Result</h3>
-      <p>Student checks status using Registration number.</p>
-    </div>
+    <% } %>
   </div>
 </section>
 
-<%- include("partials/footer") %>
+<footer class="new-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>PNS Scholarship</h3>
+      <p>Smart, secure and transparent scholarship management system.</p>
+    </div>
+
+    <div>
+      <h4>Contact Us</h4>
+      <p>📞 +91 79786 09045</p>
+      <p>✉ support@pnsscholarship.in</p>
+    </div>
+
+    <div>
+      <h4>Quick Links</h4>
+      <a href="/">Home</a>
+      <a href="/apply">Apply</a>
+      <a href="/check">Check Status</a>
+    </div>
+
+    <div>
+      <h4>Important Links</h4>
+      <a href="/notice">Notice</a>
+      <a href="/login">Admin Login</a>
+    </div>
+  </div>
+
+  <p class="copyright">© 2026 PNS Scholarship Portal. All Rights Reserved.</p>
+</footer>
+
+<a href="https://wa.me/917978609045" class="floating-wa">💬</a>
 
 </body>
 </html>
