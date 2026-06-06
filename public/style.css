@@ -5370,3 +5370,277 @@ input, select, textarea {
     width:100%;
   }
 }
+/* ===================================================
+   NATIONAL SCHOOL / UNIVERSITY PREMIUM OVERRIDE
+=================================================== */
+
+:root{
+  --primary:#0f4c81;
+  --dark:#071827;
+  --gold:#ffb703;
+  --light:#f8fbff;
+}
+
+/* SECTION SPACING */
+
+.hero-3d,
+.achievement-section,
+.chairman-section,
+.why-us,
+.stats,
+.features,
+.college-slider-section,
+.latest,
+.process-3d{
+  padding:80px 7%;
+}
+
+/* PREMIUM CARD EFFECT */
+
+.achievement-card,
+.why-card,
+.card,
+.notice-box,
+.flow-card,
+.status-info-card,
+.mini-card{
+  border-radius:28px;
+  background:#fff;
+  box-shadow:0 20px 60px rgba(0,0,0,.08);
+  transition:.35s;
+}
+
+.achievement-card:hover,
+.why-card:hover,
+.card:hover,
+.notice-box:hover,
+.flow-card:hover{
+  transform:translateY(-12px);
+}
+
+/* BIG HEADINGS */
+
+.hero-left h1{
+  font-size:68px;
+  line-height:1.05;
+}
+
+.hero-left p{
+  font-size:22px;
+  line-height:1.8;
+}
+
+.features h2,
+.latest h2,
+.why-us h2,
+.process-3d h2,
+.slider-heading h2{
+  font-size:48px;
+  margin-bottom:25px;
+}
+
+/* BUTTONS */
+
+.hero-buttons a,
+.notice-btn,
+.chairman-btn,
+.cta-premium a{
+  padding:16px 32px;
+  border-radius:40px;
+  font-size:18px;
+  font-weight:800;
+}
+
+/* COLLEGE SLIDER */
+
+.college-slide{
+  border-radius:30px;
+  overflow:hidden;
+}
+
+.slide-content{
+  background:rgba(0,0,0,.55);
+  padding:40px;
+}
+
+.slide-content h3{
+  font-size:32px;
+}
+
+.slide-content p{
+  font-size:18px;
+  line-height:1.7;
+}
+
+/* NOTICE */
+
+.notice-box h3{
+  font-size:26px;
+}
+
+.notice-box p{
+  font-size:17px;
+  line-height:1.7;
+}
+
+/* PROCESS */
+
+.flow-card b{
+  font-size:55px;
+}
+
+.flow-card h3{
+  font-size:28px;
+}
+
+.flow-card p{
+  font-size:18px;
+}
+
+/* ===================================================
+   MOBILE RESPONSIVE
+=================================================== */
+
+@media(max-width:768px){
+
+  body{
+    font-size:18px;
+    overflow-x:hidden;
+  }
+
+  /* All Sections */
+  .hero-3d,
+  .achievement-section,
+  .chairman-section,
+  .why-us,
+  .stats,
+  .features,
+  .college-slider-section,
+  .latest,
+  .process-3d{
+    padding:35px 15px !important;
+  }
+
+  /* Hero */
+  .hero-3d{
+    grid-template-columns:1fr !important;
+    text-align:center;
+    gap:25px;
+  }
+
+  .hero-left h1{
+    font-size:42px !important;
+    line-height:1.2;
+  }
+
+  .hero-left p{
+    font-size:19px !important;
+  }
+
+  /* Buttons one by one */
+  .hero-buttons{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .hero-buttons a{
+    width:100%;
+    text-align:center;
+    font-size:18px;
+  }
+
+  /* Every Grid One Column */
+  .achievement-section,
+  .why-grid,
+  .cards,
+  .stats,
+  .process-flow,
+  .notice-grid,
+  .mini-grid,
+  .chairman-section{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:15px;
+  }
+
+  /* Cards */
+  .achievement-card,
+  .why-card,
+  .card,
+  .notice-box,
+  .flow-card,
+  .mini-card{
+    padding:25px;
+    width:100%;
+  }
+
+  .achievement-card h2{
+    font-size:40px;
+  }
+
+  .card h3,
+  .why-card h3,
+  .flow-card h3{
+    font-size:24px;
+  }
+
+  .card p,
+  .why-card p,
+  .flow-card p{
+    font-size:17px;
+    line-height:1.7;
+  }
+
+  /* Chairman */
+  .chairman-img img{
+    width:100%;
+    border-radius:25px;
+  }
+
+  .chairman-content{
+    text-align:center;
+  }
+
+  .chairman-content h2{
+    font-size:34px;
+  }
+
+  .chairman-content p{
+    font-size:18px;
+  }
+
+  /* Slider */
+  .slider-heading h2{
+    font-size:32px;
+  }
+
+  .slide-content{
+    padding:20px;
+  }
+
+  .slide-content h3{
+    font-size:24px;
+  }
+
+  .slide-content p{
+    font-size:16px;
+  }
+
+  /* Section Titles */
+  .features h2,
+  .latest h2,
+  .why-us h2,
+  .process-3d h2{
+    font-size:32px !important;
+    text-align:center;
+  }
+
+  /* Notice Button */
+  .notice-btn{
+    width:100%;
+    text-align:center;
+    display:block;
+    margin-top:15px;
+  }
+}
