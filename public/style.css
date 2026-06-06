@@ -5178,198 +5178,7 @@ input, select, textarea {
   box-shadow:0 10px 30px rgba(37,211,102,.4);
   z-index:999;
 }
-/* ===== ULTRA MOBILE RESPONSIVE OVERRIDE ===== */
 
-@media (max-width:768px){
-
-  body{
-    font-size:18px;
-  }
-
-  /* Header */
-  .header{
-    padding:12px;
-  }
-
-  .logo{
-    font-size:30px;
-  }
-
-  .header nav{
-    display:flex;
-    flex-direction:column;
-    width:100%;
-    gap:10px;
-  }
-
-  .header nav a,
-  .btn-nav{
-    width:100%;
-    text-align:center;
-    padding:16px;
-    font-size:18px;
-  }
-
-  /* Hero */
-  .hero,
-  .hero-3d,
-  .status-hero,
-  .application-hero,
-  .apply-hero{
-    min-height:auto;
-    padding:40px 15px;
-  }
-
-  .hero h1,
-  .hero-left h1,
-  .status-content h1,
-  .application-hero h1,
-  .apply-content h1{
-    font-size:42px !important;
-    line-height:1.2;
-  }
-
-  .hero p,
-  .status-content p,
-  .application-hero p{
-    font-size:20px;
-  }
-
-  /* All buttons one by one */
-  .hero-buttons,
-  .admin-actions{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-
-  .hero-buttons a,
-  .notice-btn,
-  .logout-btn,
-  .status-btn,
-  .application-submit,
-  .submit-btn,
-  .login-btn,
-  button{
-    width:100%;
-    font-size:20px;
-    padding:18px;
-  }
-
-  /* Cards */
-  .cards,
-  .stats,
-  .admin-stats,
-  .admin-panel-grid,
-  .application-info,
-  .notice-grid,
-  .process-flow,
-  .result-grid{
-    grid-template-columns:1fr !important;
-    gap:15px;
-  }
-
-  .card,
-  .info-card,
-  .status-info-card,
-  .admin-stat-card,
-  .flow-card{
-    padding:25px;
-  }
-
-  .card h3,
-  .info-card h3,
-  .status-info-card h3{
-    font-size:24px;
-  }
-
-  .card p,
-  .info-card p,
-  .status-info-card p{
-    font-size:17px;
-  }
-
-  /* Form */
-  .form-grid,
-  .payment-form,
-  .inline-form{
-    grid-template-columns:1fr !important;
-  }
-
-  input,
-  select,
-  textarea{
-    width:100%;
-    font-size:18px;
-    padding:18px;
-    margin-bottom:12px;
-  }
-
-  label{
-    font-size:18px;
-  }
-
-  /* Application page IDs one below another */
-  .section-title{
-    margin:20px 0;
-  }
-
-  .section-title b{
-    width:60px;
-    height:60px;
-    font-size:22px;
-  }
-
-  .section-title h3{
-    font-size:26px;
-  }
-
-  /* Status page */
-  .status-container{
-    grid-template-columns:1fr;
-    gap:15px;
-  }
-
-  .status-form,
-  .result-premium,
-  .application-form{
-    padding:20px;
-  }
-
-  /* Reduce excessive spaces */
-  .features,
-  .latest,
-  .notice-page,
-  .form-section,
-  .status-section,
-  .application-wrapper,
-  .process-3d,
-  .admin-dashboard{
-    padding:30px 15px;
-  }
-
-  h2{
-    font-size:34px !important;
-  }
-
-  h3{
-    font-size:24px !important;
-  }
-
-  p{
-    font-size:18px;
-  }
-
-  /* Footer */
-  .footer-container{
-    flex-direction:column;
-    gap:20px;
-  }
-
-  .footer-card{
-    width:100%;
-  }
-}
 /* ===== INDEX PAGE EMERGENCY DESIGN FIX ===== */
 
 body{
@@ -5880,5 +5689,69 @@ body{
 
   .slide-content p{
     font-size:15px !important;
+  }
+}
+  .features h2,
+  .latest h2,
+  .process-3d h2,
+  .slider-heading h2{
+    font-size:31px !important;
+    line-height:1.25 !important;
+  }
+
+  .stats h2{
+    font-size:38px !important;
+  }
+
+  .card h3,
+  .notice-box h3,
+  .flow-card h3{
+    font-size:24px !important;
+  }
+
+  .card p,
+  .notice-box p,
+  .flow-card p{
+    font-size:17px !important;
+  }
+
+  .college-slider{
+    height:370px !important;
+    border-radius:26px !important;
+  }
+
+  .slide-content{
+    left:22px !important;
+    right:22px !important;
+    bottom:25px !important;
+    max-width:90% !important;
+  }
+
+  .slide-content h3{
+    font-size:26px !important;
+  }
+
+  .slide-content p{
+    font-size:15px !important;
+  }
+
+  .notice-btn{
+    width:100% !important;
+    text-align:center !important;
+    font-size:18px !important;
+  }
+
+
+@media(max-width:420px){
+  .hero-left h1{
+    font-size:32px !important;
+  }
+
+  .dashboard-3d{
+    padding:18px !important;
+  }
+
+  .dash-card h2{
+    font-size:23px !important;
   }
 }
