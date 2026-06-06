@@ -35,6 +35,11 @@ const mailTransporter = nodemailer.createTransport({
 });
 const PORT = process.env.PORT || 3000;
 
+const mongoURI =
+  process.env.MONGODB_URI ||
+  process.env.MONGO_URI ||
+  process.env.MONGO_URL;
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -45,8 +50,13 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI
-  })
+    mongoUrl: mongoURI
+  }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    secure: false
+  }
 }));
 
 
@@ -199,7 +209,7 @@ async function createDefaultAdmin() {
   }
 }
 
-mongoose.connect(process.env.MONGO_URI || process.env.MONGO_URL)
+mongoose.connect(mongoURI)
   .then(async () => {
     console.log("✅ MongoDB Connected");
     await createDefaultAdmin();
@@ -902,7 +912,10 @@ paymentDate: req.body.paymentDate,
     createdAtText: new Date().toLocaleString()
   });
 
-  if (req.body.studentId && req.body.status === "Success") {
+  if (
+  req.body.studentId &&
+  Number(req.body.amount || 0) >= Number(req.body.totalFee || 0)
+) {
   await Student.findByIdAndUpdate(req.body.studentId, {
     status: "Success",
     paymentStatus: "Paid"
