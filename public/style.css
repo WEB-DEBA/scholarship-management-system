@@ -3432,3 +3432,39 @@ textarea {
     padding: 45px 18px !important;
   }
 }
+@media (max-width:768px){
+
+.header{
+  padding:12px;
+}
+
+.logo{
+  font-size:20px !important;
+}
+
+.header nav{
+  display:none !important;
+}
+
+.mobile-menu-btn{
+  display:block !important;
+}
+
+}
+@media (max-width:768px){
+
+.admin-login-container{
+   display:flex !important;
+   flex-direction:column !important;
+}
+
+.admin-login-left{
+   width:100% !important;
+}
+
+.admin-login-right{
+   width:100% !important;
+   margin-top:20px !important;
+}
+
+}
