@@ -16,6 +16,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const QRCode = require("qrcode");
 const archiver = require("archiver");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 const mailTransporter = nodemailer.createTransport({
@@ -42,7 +43,10 @@ app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET || "scholarship_secret_key",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI
+  })
 }));
 
 
