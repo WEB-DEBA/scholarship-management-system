@@ -5755,3 +5755,152 @@ body{
     font-size:23px !important;
   }
 }
+/* ===== ULTIMATE MOBILE RESPONSIVE ===== */
+
+@media (max-width:768px){
+
+  section{
+    padding:40px 15px !important;
+  }
+
+  .hero-3d,
+  .status-container,
+  .login-container,
+  .admin-panel-grid,
+  .cards,
+  .stats,
+  .notice-grid,
+  .process-flow,
+  .form-grid,
+  .result-grid,
+  .application-info,
+  .admin-stats{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:15px !important;
+  }
+
+  .hero-3d{
+    min-height:auto !important;
+    padding:40px 15px !important;
+  }
+
+  .hero-left,
+  .hero-right{
+    width:100% !important;
+  }
+
+  .hero-left h1{
+    font-size:34px !important;
+    text-align:center !important;
+    line-height:1.3 !important;
+  }
+
+  .hero-left p{
+    font-size:18px !important;
+    text-align:center !important;
+    margin:15px 0 !important;
+  }
+
+  .hero-buttons{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:12px !important;
+  }
+
+  .hero-buttons a{
+    width:100% !important;
+    margin:0 !important;
+    text-align:center !important;
+  }
+
+  .dashboard-3d{
+    margin-top:10px !important;
+    transform:none !important;
+  }
+
+  .mini-grid{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+  }
+
+  .stats div,
+  .card,
+  .notice-box,
+  .flow-card,
+  .admin-stat-card,
+  .info-card,
+  .status-info-card{
+    width:100% !important;
+    margin:0 !important;
+    padding:20px !important;
+  }
+
+  input,
+  select,
+  textarea{
+    width:100% !important;
+    font-size:18px !important;
+    padding:16px !important;
+    margin-bottom:10px !important;
+  }
+
+  button,
+  .notice-btn,
+  .application-btn,
+  .status-btn,
+  .login-btn,
+  .logout-btn{
+    width:100% !important;
+    font-size:18px !important;
+    padding:15px !important;
+  }
+
+  .college-slider{
+    height:300px !important;
+  }
+
+  .slide-content{
+    left:15px !important;
+    right:15px !important;
+    bottom:15px !important;
+  }
+
+  .slide-content h3{
+    font-size:22px !important;
+  }
+
+  .slide-content p{
+    font-size:15px !important;
+  }
+
+  .features,
+  .latest,
+  .process-3d,
+  .college-slider-section,
+  .status-section,
+  .application-wrapper{
+    padding-top:35px !important;
+    padding-bottom:35px !important;
+  }
+
+  h2{
+    margin-bottom:15px !important;
+  }
+
+  .header{
+    padding:12px !important;
+  }
+
+  .header nav{
+    display:flex !important;
+    flex-direction:column !important;
+    width:100% !important;
+  }
+
+  .header nav a{
+    margin:4px 0 !important;
+    text-align:center !important;
+  }
+}
