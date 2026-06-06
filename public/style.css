@@ -2418,3 +2418,42 @@ body > main{
     grid-template-columns:1fr !important;
   }
 }
+/* ===== NOTICE SECTION LAYOUT FIX ===== */
+
+.notice-grid{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:20px !important;
+}
+
+.notice-box{
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:20px !important;
+  padding:24px !important;
+}
+
+/* Notice content */
+.notice-box h3{
+  margin-bottom:8px !important;
+}
+
+.notice-box p{
+  margin:0 !important;
+}
+
+/* Mobile */
+@media(max-width:768px){
+
+  .notice-box{
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    text-align:left !important;
+  }
+
+  .notice-grid{
+    grid-template-columns:1fr !important;
+  }
+}
