@@ -3917,3 +3917,383 @@ table {
     padding: 6px 7px !important;
   }
 }
+/* ================================
+   FINAL MOBILE + DESIGN OVERRIDE
+   Paste this at END of style.css
+================================ */
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+}
+
+/* Cursive font only heading me thoda rakho */
+h1, h2, h3, p, a, span, button {
+  line-height: 1.5 !important;
+}
+
+/* Better readable sections */
+section {
+  padding: 60px 7% !important;
+}
+
+.section-title,
+.features-title,
+.highlights-title,
+.notice-title,
+.how-title {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 34px !important;
+  font-weight: 800 !important;
+  color: #082033 !important;
+  text-align: center !important;
+  margin-bottom: 35px !important;
+}
+
+/* Hero / highlight image */
+.hero-card,
+.highlight-card,
+.gallery-card {
+  width: 100% !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  border-radius: 26px !important;
+  overflow: hidden !important;
+}
+
+.hero-card img,
+.highlight-card img,
+.gallery-card img {
+  width: 100% !important;
+  height: 430px !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* Image text readable */
+.hero-card::after,
+.highlight-card::after,
+.gallery-card::after {
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.85),
+    rgba(0,0,0,0.25),
+    transparent
+  ) !important;
+}
+
+/* Stats */
+.stats,
+.stats-container,
+.stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 24px !important;
+  width: 100% !important;
+  max-width: 1100px !important;
+  margin: 40px auto !important;
+}
+
+.stat-card,
+.stats-card {
+  width: 100% !important;
+  padding: 28px 18px !important;
+  border-radius: 20px !important;
+  text-align: center !important;
+}
+
+.stat-card h3,
+.stats-card h3 {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+}
+
+.stat-card p,
+.stats-card p {
+  font-size: 15px !important;
+}
+
+/* Features */
+.features-grid,
+.feature-container,
+.portal-features {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 30px !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+
+.feature-card {
+  width: 100% !important;
+  min-height: 210px !important;
+  padding: 35px 25px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+}
+
+.feature-card h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 23px !important;
+  font-weight: 800 !important;
+  margin: 12px 0 !important;
+}
+
+.feature-card p {
+  font-size: 15px !important;
+  color: #475569 !important;
+}
+
+/* Notice */
+.notice-grid,
+.notice-container,
+.notices-wrapper {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 25px !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+
+.notice-card {
+  width: 100% !important;
+  min-height: 190px !important;
+  padding: 28px !important;
+  border-radius: 22px !important;
+}
+
+.notice-card h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+.notice-card p {
+  font-size: 15px !important;
+  color: #334155 !important;
+}
+
+/* How it works */
+.how-it-works,
+.how-section {
+  background: #061c29 !important;
+  padding: 70px 7% !important;
+}
+
+.how-grid,
+.how-container {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 28px !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+
+.how-card {
+  width: 100% !important;
+  min-height: 220px !important;
+  padding: 35px 25px !important;
+  border-radius: 24px !important;
+  text-align: center !important;
+  background: #fff !important;
+}
+
+.how-card h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+.how-card p {
+  font-size: 15px !important;
+  color: #475569 !important;
+}
+
+/* Footer */
+.footer {
+  padding: 70px 7% 30px !important;
+}
+
+.footer h2,
+.footer h3 {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-weight: 800 !important;
+}
+
+.footer p,
+.footer a,
+.footer li,
+.footer span {
+  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-size: 15px !important;
+}
+
+/* ================= MOBILE FIX ================= */
+
+@media (max-width: 768px) {
+
+  section {
+    padding: 45px 20px !important;
+  }
+
+  .section-title,
+  .features-title,
+  .highlights-title,
+  .notice-title,
+  .how-title {
+    font-size: 28px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .hero-card,
+  .highlight-card,
+  .gallery-card {
+    border-radius: 22px !important;
+  }
+
+  .hero-card img,
+  .highlight-card img,
+  .gallery-card img {
+    height: 260px !important;
+  }
+
+  .hero-card h1,
+  .highlight-card h1,
+  .gallery-card h1 {
+    font-size: 28px !important;
+    font-family: "Segoe UI", Arial, sans-serif !important;
+    font-weight: 800 !important;
+  }
+
+  .hero-card p,
+  .highlight-card p,
+  .gallery-card p {
+    font-size: 14px !important;
+  }
+
+  /* stats one by one */
+  .stats,
+  .stats-container,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    margin: 25px auto !important;
+  }
+
+  .stat-card,
+  .stats-card {
+    min-height: 120px !important;
+    padding: 25px 20px !important;
+  }
+
+  /* features one by one */
+  .features-grid,
+  .feature-container,
+  .portal-features {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+  }
+
+  .feature-card {
+    min-height: 190px !important;
+    padding: 30px 22px !important;
+  }
+
+  .feature-card h3 {
+    font-size: 22px !important;
+  }
+
+  .feature-card p {
+    font-size: 15px !important;
+  }
+
+  /* notices one by one */
+  .notice-grid,
+  .notice-container,
+  .notices-wrapper {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .notice-card {
+    width: 100% !important;
+    min-height: 180px !important;
+    padding: 25px !important;
+  }
+
+  .notice-card h3 {
+    font-size: 18px !important;
+  }
+
+  .notice-card p {
+    font-size: 15px !important;
+  }
+
+  /* how it works one by one */
+  .how-grid,
+  .how-container {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
+  }
+
+  .how-card {
+    min-height: 190px !important;
+    padding: 30px 22px !important;
+  }
+
+  .how-card h3 {
+    font-size: 22px !important;
+  }
+
+  .how-card p {
+    font-size: 15px !important;
+  }
+
+  /* footer mobile */
+  .footer {
+    text-align: center !important;
+    padding: 55px 20px 25px !important;
+  }
+
+  .footer-grid,
+  .footer-content,
+  .footer-container {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+    text-align: center !important;
+  }
+
+  .footer p,
+  .footer a,
+  .footer li,
+  .footer span {
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .section-title,
+  .features-title,
+  .highlights-title,
+  .notice-title,
+  .how-title {
+    font-size: 24px !important;
+  }
+
+  .hero-card img,
+  .highlight-card img,
+  .gallery-card img {
+    height: 230px !important;
+  }
+
+  .feature-card,
+  .notice-card,
+  .how-card,
+  .stat-card,
+  .stats-card {
+    border-radius: 20px !important;
+  }
+}
