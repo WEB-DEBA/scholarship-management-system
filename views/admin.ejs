@@ -93,13 +93,11 @@
       <span>📋</span>
       <div>
         <h2>Student Applications</h2>
-        <p>Save Application click karne ke baad record Application Details page me chala jayega.</p>
+        
       </div>
     </div>
 
-    <form action="/admin/whatsapp" method="POST" id="studentActionForm">
-      <textarea name="message" placeholder="Write message for selected students" required></textarea>
-    </form>
+ 
 
     <div class="table-wrap">
       <table class="premium-table">
@@ -122,7 +120,7 @@
         <tbody>
           <% if (students.length === 0) { %>
             <tr>
-              <td colspan="14" style="text-align:center;">No new applications found</td>
+              <td colspan="11" style="text-align:center;">No new applications found</td>
             </tr>
           <% } %>
 
@@ -136,12 +134,7 @@
             >
 
               <td>
-                <input
-                  form="studentActionForm"
-                  type="checkbox"
-                  name="phones"
-                  value="<%= s.phone %>"
-                >
+                <input form="studentActionForm" type="checkbox" name="phones" value="<%= s.phone %>">
               </td>
 
               <td>
@@ -168,44 +161,21 @@
               <td><%= s.college || "N/A" %></td>
 
               <td>
-                <a href="/admin/student/<%= s._id %>" class="view-btn">
-                  Full Profile
-                </a>
+                <a href="/admin/student/<%= s._id %>" class="view-btn">Full Profile</a>
 
-                <button
-                  type="button"
-                  class="view-btn"
-                  onclick="toggleDetails('<%= s._id %>')"
-                >
+                <button type="button" class="view-btn" onclick="toggleDetails('<%= s._id %>')">
                   Quick View
                 </button>
               </td>
 
               <td>
                 <div class="doc-mini-links">
-                  <% if (s.aadhaarFile) { %>
-                    <a href="/uploads/<%= s.aadhaarFile %>" target="_blank">Aadhaar</a>
-                  <% } %>
-
-                  <% if (s.casteFile) { %>
-                    <a href="/uploads/<%= s.casteFile %>" target="_blank">Caste</a>
-                  <% } %>
-
-                  <% if (s.incomeFile) { %>
-                    <a href="/uploads/<%= s.incomeFile %>" target="_blank">Income</a>
-                  <% } %>
-
-                  <% if (s.photoFile) { %>
-                    <a href="/uploads/<%= s.photoFile %>" target="_blank">Photo</a>
-                  <% } %>
-
-                  <% if (s.bankFile) { %>
-                    <a href="/uploads/<%= s.bankFile %>" target="_blank">Bank</a>
-                  <% } %>
-
-                  <% if (s.marksheetFile) { %>
-                    <a href="/uploads/<%= s.marksheetFile %>" target="_blank">Marksheet</a>
-                  <% } %>
+                  <% if (s.aadhaarFile) { %><a href="/uploads/<%= s.aadhaarFile %>" target="_blank">Aadhaar</a><% } %>
+                  <% if (s.casteFile) { %><a href="/uploads/<%= s.casteFile %>" target="_blank">Caste</a><% } %>
+                  <% if (s.incomeFile) { %><a href="/uploads/<%= s.incomeFile %>" target="_blank">Income</a><% } %>
+                  <% if (s.photoFile) { %><a href="/uploads/<%= s.photoFile %>" target="_blank">Photo</a><% } %>
+                  <% if (s.bankFile) { %><a href="/uploads/<%= s.bankFile %>" target="_blank">Bank</a><% } %>
+                  <% if (s.marksheetFile) { %><a href="/uploads/<%= s.marksheetFile %>" target="_blank">Marksheet</a><% } %>
                 </div>
               </td>
 
@@ -216,11 +186,10 @@
                     <option <%= s.status === "Success" ? "selected" : "" %>>Success</option>
                     <option <%= s.status === "Failed" ? "selected" : "" %>>Failed</option>
                   </select>
-
                   <button>Save</button>
                 </form>
               </td>
-              
+
               <td>
                 <form action="/admin/application/save/<%= s._id %>" method="POST">
                   <button class="btn-success">Save Application</button>
@@ -236,7 +205,7 @@
             </tr>
 
             <tr id="details-<%= s._id %>" class="student-detail-row">
-              <td colspan="14">
+              <td colspan="11">
                 <div class="student-full-box">
                   <h3>Student Full Details</h3>
 
@@ -268,7 +237,6 @@
         </tbody>
       </table>
     </div>
-
   </div>
 
   <div class="admin-box full-box">
@@ -284,7 +252,6 @@
       <% notices.forEach((n, i) => { %>
         <div class="admin-notice-card">
           <span class="notice-tag"><%= n.category || "Notice" %></span>
-
           <h3><%= n.title %></h3>
           <p><%= n.message %></p>
           <small><%= n.date %></small>
@@ -309,27 +276,22 @@ function toggleDetails(id) {
 }
 
 function searchStudent() {
-  const input = document
-    .getElementById("studentSearch")
-    .value
-    .toLowerCase()
-    .trim();
-
+  const input = document.getElementById("studentSearch").value.toLowerCase().trim();
   const rows = document.querySelectorAll(".student-row");
 
   rows.forEach(row => {
     const name = row.dataset.name || "";
     const aadhaar = row.dataset.aadhaar || "";
     const registration = row.dataset.registration || "";
-
     const detailRow = row.nextElementSibling;
 
-    if (
-      name.includes(input) ||
-      aadhaar.includes(input) ||
-      registration.includes(input)
-    ) {
+    if (name.includes(input) || aadhaar.includes(input) || registration.includes(input)) {
       row.style.display = "";
+
+      if (detailRow && detailRow.classList.contains("student-detail-row")) {
+        detailRow.style.display = "";
+      }
+
     } else {
       row.style.display = "none";
 
@@ -344,9 +306,7 @@ function resetSearch() {
   const input = document.getElementById("studentSearch");
   input.value = "";
 
-  const rows = document.querySelectorAll(".student-row");
-
-  rows.forEach(row => {
+  document.querySelectorAll(".student-row").forEach(row => {
     row.style.display = "";
 
     const detailRow = row.nextElementSibling;
