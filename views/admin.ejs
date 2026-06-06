@@ -103,7 +103,6 @@
       <table class="premium-table">
         <thead>
           <tr>
-            <th>Select</th>
             <th>Student</th>
             <th>Aadhaar</th>
             <th>Phone</th>
@@ -111,7 +110,6 @@
             <th>College</th>
             <th>Profile</th>
             <th>Documents</th>
-            <th>Update</th>
             <th>Save Application</th>
             <th>Delete</th>
           </tr>
@@ -134,20 +132,16 @@
             >
 
               <td>
-                <input form="studentActionForm" type="checkbox" name="phones" value="<%= s.phone %>">
-              </td>
-
-              <td>
                 <b><%= s.name || "N/A" %></b><br>
                 <small><%= s.registrationNo || "Reg No N/A" %></small><br>
 
-                <a
+                <!-- <a
                   href="https://wa.me/91<%= s.phone %>?text=Hello%20<%= s.name %>,%20your%20scholarship%20application%20status%20is%20<%= s.status %>"
                   target="_blank"
                   class="wa-direct-btn"
                 >
                   WhatsApp
-                </a>
+                </a> -->
               </td>
 
               <td><%= s.aadhaar || "N/A" %></td>
@@ -179,16 +173,7 @@
                 </div>
               </td>
 
-              <td>
-                <form action="/admin/status/<%= s._id %>" method="POST" class="status-mini-form">
-                  <select name="status">
-                    <option <%= s.status === "Pending" ? "selected" : "" %>>Pending</option>
-                    <option <%= s.status === "Success" ? "selected" : "" %>>Success</option>
-                    <option <%= s.status === "Failed" ? "selected" : "" %>>Failed</option>
-                  </select>
-                  <button>Save</button>
-                </form>
-              </td>
+              
 
               <td>
                 <form action="/admin/application/save/<%= s._id %>" method="POST">

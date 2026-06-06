@@ -59,9 +59,6 @@ app.use(session({
   }
 }));
 
-
-
-
 const uploadDir = path.join(__dirname, "public", "uploads");
 
 if (!fs.existsSync(uploadDir)) {
