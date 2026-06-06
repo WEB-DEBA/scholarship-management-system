@@ -3178,305 +3178,257 @@ button:hover{
    Paste at VERY END of style.css
 ================================================== */
 
-/* =====================================================
-   MOBILE ONE-BY-ONE FINAL FIX
-   Apply page + Home page + Status page
-   Paste at very end of style.css
-===================================================== */
+/* ===== FULL MOBILE RESPONSIVE OVERRIDE ===== */
 
-@media only screen and (max-width: 768px) {
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
 
-  html,
+* {
+  box-sizing: border-box !important;
+}
+
+/* Header fix */
+.header,
+nav,
+.navbar {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.header {
+  height: auto !important;
+  padding: 12px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+
+.logo,
+.logo a {
+  font-size: 18px !important;
+  white-space: nowrap !important;
+}
+
+.header nav {
+  display: flex !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+}
+
+.header nav a {
+  font-size: 12px !important;
+  margin: 0 !important;
+  padding: 6px 8px !important;
+}
+
+/* All sections */
+section {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Hero fix */
+.hero,
+.status-hero,
+.admin-login-section,
+.admin-hero {
+  width: 100% !important;
+  min-height: auto !important;
+  padding: 80px 18px !important;
+  text-align: center !important;
+}
+
+.hero-content,
+.status-content,
+.admin-login-container,
+.admin-login-left,
+.admin-login-right {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+}
+
+.hero h1,
+.status-hero h1,
+.admin-login-left h1 {
+  font-size: 32px !important;
+  line-height: 1.15 !important;
+  word-break: normal !important;
+}
+
+.hero p,
+.status-hero p,
+.admin-login-left p {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+/* Buttons */
+.hero-buttons,
+.btn-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.hero-buttons a,
+.btn,
+button {
+  width: 100% !important;
+  max-width: 260px !important;
+  text-align: center !important;
+}
+
+/* Cards one by one */
+.stats-grid,
+.features-grid,
+.status-container,
+.status-left,
+.status-right,
+.admin-login-container,
+.cards,
+.card-grid,
+.feature-row,
+.info-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  width: 100% !important;
+  gap: 18px !important;
+}
+
+.stat-card,
+.feature-card,
+.status-info-card,
+.admin-card,
+.card,
+.notice-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 28px 18px !important;
+  text-align: center !important;
+}
+
+/* Form/input one by one */
+form,
+.form-row,
+.input-row,
+.form-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 16px !important;
+}
+
+input,
+select,
+textarea {
+  width: 100% !important;
+  max-width: 100% !important;
+  font-size: 16px !important;
+  padding: 15px 16px !important;
+}
+
+/* Admin login broken right side fix */
+.admin-login-section {
+  display: block !important;
+}
+
+.admin-login-container {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 25px !important;
+  padding: 30px 16px !important;
+}
+
+.admin-login-left,
+.admin-login-right,
+.login-box,
+.login-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 25px !important;
+}
+
+.admin-login-right {
+  padding: 25px 18px !important;
+}
+
+/* Image/highlight */
+.highlight-card,
+.college-card,
+.gallery-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 18px !important;
+}
+
+.highlight-card img,
+.college-card img,
+.gallery-card img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+}
+
+/* Mobile only stronger */
+@media (max-width: 768px) {
   body {
-    width: 100% !important;
-    overflow-x: hidden !important;
-    font-size: 18px !important;
-  }
-
-  * {
-    box-sizing: border-box !important;
-  }
-
-  /* Less page gap */
-  section,
-  .hero-3d,
-  .application-wrapper,
-  .application-hero,
-  .features,
-  .latest,
-  .process-3d,
-  .status-section,
-  .status-hero {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-    padding-top: 35px !important;
-    padding-bottom: 35px !important;
-  }
-
-  /* Home page grid one by one */
-  .stats,
-  .cards,
-  .notice-grid,
-  .process-flow,
-  .mini-grid,
-  .feature-grid,
-  .features-grid,
-  .latest-grid {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 18px !important;
-    width: 100% !important;
-  }
-
-  .stats > *,
-  .cards > *,
-  .notice-grid > *,
-  .process-flow > *,
-  .mini-grid > *,
-  .feature-grid > *,
-  .features-grid > *,
-  .latest-grid > * {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  /* Apply form all inputs one by one */
-  .form-grid,
-  form .form-grid,
-  .application-form .form-grid,
-  .big-form .form-grid {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 16px !important;
-    width: 100% !important;
-  }
-
-  .form-grid > *,
-  .application-form .form-grid > *,
-  .big-form .form-grid > * {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: none !important;
-  }
-
-  .application-form {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 24px 16px !important;
-    border-radius: 24px !important;
-  }
-
-  .form-title h2 {
-    font-size: 32px !important;
-    line-height: 1.25 !important;
-    text-align: center !important;
-  }
-
-  .form-title p {
-    font-size: 18px !important;
-    text-align: center !important;
-    line-height: 1.6 !important;
-  }
-
-  .section-title {
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-    margin: 30px 0 15px !important;
-  }
-
-  .section-title b {
-    width: 50px !important;
-    height: 50px !important;
-    min-width: 50px !important;
-    font-size: 20px !important;
-    border-radius: 15px !important;
-  }
-
-  .section-title h3 {
-    font-size: 24px !important;
-    line-height: 1.3 !important;
-  }
-
-  /* Inputs big */
-  input,
-  select,
-  textarea {
-    width: 100% !important;
-    min-height: 66px !important;
-    height: 66px !important;
-    font-size: 18px !important;
-    padding: 17px 18px !important;
-    border-radius: 16px !important;
-    margin-bottom: 0 !important;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    font-size: 17px !important;
-  }
-
-  select {
-    font-size: 18px !important;
-  }
-
-  textarea {
-    min-height: 130px !important;
-    height: 130px !important;
-  }
-
-  /* File upload one by one */
-  .upload-box {
-    width: 100% !important;
-    display: block !important;
-    margin-bottom: 6px !important;
-  }
-
-  .upload-box label {
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    margin-bottom: 10px !important;
-    display: block !important;
-  }
-
-  input[type="file"] {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 60px !important;
-    padding: 16px !important;
     font-size: 16px !important;
   }
 
-  /* Buttons big one by one */
-  button,
-  .submit-btn,
-  .application-submit,
-  .status-btn,
-  .login-btn,
-  .notice-btn,
-  .apply-btn,
-  .btn-nav,
-  .hero-buttons a {
-    width: 100% !important;
-    min-height: 64px !important;
-    font-size: 18px !important;
-    font-weight: 800 !important;
-    border-radius: 16px !important;
-    padding: 16px !important;
-    text-align: center !important;
+  .header {
+    flex-direction: column !important;
+    align-items: center !important;
   }
 
-  .hero-buttons {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 14px !important;
+  .header nav {
+    justify-content: center !important;
     width: 100% !important;
-    max-width: 320px !important;
-    margin: 20px auto !important;
   }
 
-  /* Home text bigger */
-  .hero-left h1,
-  .hero h1 {
-    font-size: 38px !important;
+  .hero,
+  .status-hero {
+    padding: 90px 16px 70px !important;
+  }
+
+  .hero h1,
+  .status-hero h1 {
+    font-size: 34px !important;
+  }
+
+  h2 {
+    font-size: 28px !important;
     line-height: 1.2 !important;
     text-align: center !important;
   }
 
-  .hero-left p,
-  .hero p {
-    font-size: 19px !important;
-    line-height: 1.7 !important;
-    text-align: center !important;
+  h3 {
+    font-size: 22px !important;
   }
 
-  .card,
-  .glass-card,
-  .flow-card,
-  .notice-box,
-  .notice-3d,
-  .status-info-card {
-    padding: 24px !important;
-    border-radius: 22px !important;
-    text-align: center !important;
+  p {
+    font-size: 15px !important;
   }
 
-  .card h3,
-  .glass-card h3,
-  .flow-card h3,
-  .notice-box h3 {
-    font-size: 24px !important;
-  }
-
-  .card p,
-  .glass-card p,
-  .flow-card p,
-  .notice-box p {
-    font-size: 17px !important;
-    line-height: 1.6 !important;
-  }
-
-  /* Status page already good, make text bigger */
-  .status-container {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 18px !important;
-  }
-
-  .status-content h1 {
-    font-size: 36px !important;
-    line-height: 1.25 !important;
-  }
-
-  .status-content p {
-    font-size: 18px !important;
-    line-height: 1.6 !important;
-  }
-
-  /* Checkbox clean */
-  input[type="checkbox"] {
-    width: 22px !important;
-    min-width: 22px !important;
-    height: 22px !important;
-    min-height: 22px !important;
-    padding: 0 !important;
-  }
-
-  .declaration-box {
-    display: flex !important;
-    align-items: flex-start !important;
-    gap: 12px !important;
-    padding: 18px !important;
-    border-radius: 18px !important;
-  }
-
-  .declaration-box p {
-    font-size: 17px !important;
-    line-height: 1.5 !important;
-    text-align: left !important;
-  }
-}
-
-@media only screen and (max-width: 480px) {
-
-  .hero-left h1,
-  .hero h1 {
-    font-size: 34px !important;
-  }
-
-  .form-title h2 {
-    font-size: 28px !important;
-  }
-
-  .section-title h3 {
-    font-size: 21px !important;
-  }
-
-  input,
-  select,
-  textarea {
-    min-height: 62px !important;
-    height: 62px !important;
-    font-size: 17px !important;
+  .container,
+  .status-section,
+  .features-section,
+  .stats-section,
+  .notice-section {
+    width: 100% !important;
+    padding: 45px 18px !important;
   }
 }
