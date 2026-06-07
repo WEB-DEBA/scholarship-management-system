@@ -2457,3 +2457,48 @@ body > main{
     grid-template-columns:1fr !important;
   }
 }
+/* ===== MOBILE HAMBURGER MENU ===== */
+
+.menu-toggle{
+  display:none;
+  font-size:30px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+@media(max-width:768px){
+
+  .header{
+    position:relative;
+  }
+
+  .menu-toggle{
+    display:block;
+  }
+
+  .header nav{
+    display:none;
+    position:absolute;
+    top:80px;
+    left:0;
+    width:100%;
+    background:#fff;
+    padding:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+    flex-direction:column;
+    gap:10px;
+    z-index:999;
+  }
+
+  .header nav.show{
+    display:flex;
+  }
+
+  .header nav a{
+    width:100%;
+    text-align:center;
+    padding:12px;
+    border-radius:12px;
+    background:#f8fbff;
+  }
+}
