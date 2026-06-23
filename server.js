@@ -76,7 +76,7 @@ app.use(
     }
   })
 );
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 app.disable("x-powered-by");
 app.use(xss());
 
@@ -1790,9 +1790,7 @@ app.use((err, req, res, next) => {
     return res.status(400).send(err.message);
   }
 
-  res.status(500).render("error", {
-    message: "Something went wrong"
-  });
+  res.status(500).send("Internal Server Error");
 });
 
 
