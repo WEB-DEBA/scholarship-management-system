@@ -5,7 +5,6 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
-const xss = require("xss-clean");
 const { fileTypeFromFile } = require("file-type");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
@@ -78,7 +77,6 @@ app.use(
 );
 // app.use(mongoSanitize());
 app.disable("x-powered-by");
-app.use(xss());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
