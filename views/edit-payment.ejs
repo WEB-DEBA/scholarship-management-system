@@ -86,6 +86,17 @@
   value="<%= payment.totalFee || '' %>"
   required
 >
+<%
+const remainingEdit = Math.max(
+0,
+Number(payment.totalFee || 0) - Number(payment.amount || 0)
+);
+%>
+
+<p>
+Remaining Amount:
+₹<%= remainingEdit %>
+</p>
 
 <input
   type="number"

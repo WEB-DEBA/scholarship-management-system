@@ -1,201 +1,234 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Scholarship Payment Records</title>
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<%- include("partials/header") %>
+  <%- include("partials/header") %>
 
-<section class="admin-dashboard">
+    <section class="admin-dashboard">
 
-  <div class="admin-hero">
-    <div>
-      <p class="admin-tag">Payment Control</p>
-      <h1>Scholarship Payment Records</h1>
-      <p>Total fee, paid amount aur remaining balance manage karo.</p>
-    </div>
+      <div class="admin-hero">
+        <div>
+          <p class="admin-tag">Payment Control</p>
+          <h1>Scholarship Payment Records</h1>
+          <p>Total fee, paid amount aur remaining balance manage karo.</p>
+        </div>
 
-    <div class="admin-actions">
-      <a href="/admin" class="logout-btn">Back Dashboard</a>
-      <a href="/logout" class="logout-btn">Logout</a>
-    </div>
-  </div>
-
-  <div class="admin-box full-box">
-    <div class="box-heading">
-      <span>💰</span>
-      <div>
-        <h2>Add Payment Record</h2>
-        <p>Add student fee and payment details.</p>
+        <div class="admin-actions">
+          <a href="/admin" class="logout-btn">Back Dashboard</a>
+          <a href="/logout" class="logout-btn">Logout</a>
+        </div>
       </div>
-    </div>
 
-    <form action="/admin/payments" method="POST" class="payment-form">
-      <input type="text" name="name" placeholder="Student Name" required>
-      <input type="text" name="registrationNo" placeholder="Registration Number" required>
-      <input type="text" name="rollNo" placeholder="Roll Number">
+      <div class="admin-box full-box">
+        <div class="box-heading">
+          <span>💰</span>
+          <div>
+            <h2>Add Payment Record</h2>
+            <p>Add student fee and payment details.</p>
+          </div>
+        </div>
 
-      <select name="semester" required>
-        <option value="">Select Semester</option>
-        <option>1st Semester</option>
-        <option>2nd Semester</option>
-        <option>3rd Semester</option>
-        <option>4th Semester</option>
-        <option>5th Semester</option>
-        <option>6th Semester</option>
-      </select>
+        <form action="/admin/payments" method="POST" class="payment-form">
+          <input type="text" name="name" placeholder="Student Name" required>
+          <input type="text" name="registrationNo" placeholder="Registration Number" required>
+          <input type="text" name="rollNo" placeholder="Roll Number">
 
-      <select name="branch" required>
-        <option value="">Select Branch</option>
-        <option>Computer Science Engineering (CSE)</option>
-        <option>Civil Engineering</option>
-        <option>Electrical Engineering</option>
-        <option>Electronics & Telecommunication Engineering</option>
-        <option>Mechanical Engineering</option>
-      </select>
+          <select name="semester" required>
+            <option value="">Select Semester</option>
+            <option>1st Semester</option>
+            <option>2nd Semester</option>
+            <option>3rd Semester</option>
+            <option>4th Semester</option>
+            <option>5th Semester</option>
+            <option>6th Semester</option>
+          </select>
 
-      <input type="number" name="totalFee" placeholder="Total Course Fee ₹" required>
-      <input type="number" name="amount" placeholder="Paid Amount ₹" required>
-      <input type="date" name="paymentDate" required>
+          <select name="branch" required>
+            <option value="">Select Branch</option>
+            <option>Computer Science Engineering (CSE)</option>
+            <option>Civil Engineering</option>
+            <option>Electrical Engineering</option>
+            <option>Electronics & Telecommunication Engineering</option>
+            <option>Mechanical Engineering</option>
+          </select>
 
-      <select name="paymentMode" required>
-        <option value="">Select Payment Mode</option>
-        <option>Bank Transfer</option>
-        <option>UPI</option>
-        <option>Cash</option>
-        <option>Other</option>
-      </select>
+          <input type="number" name="totalFee" placeholder="Total Course Fee ₹" required>
+          <input type="number" name="amount" placeholder="Paid Amount ₹" required>
+          <input type="date" name="paymentDate" required>
 
-      <input type="text" name="transactionId" placeholder="MONEY RECEIPT NO">
-      <textarea name="remark" placeholder="Remark / Note"></textarea>
+          <select name="paymentMode" required>
+            <option value="">Select Payment Mode</option>
+            <option>Bank Transfer</option>
+            <option>UPI</option>
+            <option>Cash</option>
+            <option>Other</option>
+          </select>
 
-      <button type="submit">Save Payment Record</button>
-    </form>
-  </div>
+          <input type="text" name="transactionId" placeholder="MONEY RECEIPT NO">
+          <textarea name="remark" placeholder="Remark / Note"></textarea>
 
-  <div class="admin-box full-box">
-    <div class="box-heading">
-      <span>📑</span>
-      <div>
-        <h2>Payment Records</h2>
-        <p>Student payment summary.</p>
+          <button type="submit">Save Payment Record</button>
+        </form>
       </div>
-    </div>
 
-    <div class="search-box">
-      <input
-        type="text"
-        id="paymentSearch"
-        placeholder="Search Name, Registration No, Roll No..."
-        onkeyup="searchPayment()"
-      >
+      <div class="admin-box full-box">
+        <div class="box-heading">
+          <span>📑</span>
+          <div>
+            <h2>Payment Records</h2>
+            <p>Student payment summary.</p>
+          </div>
+        </div>
 
-      <button type="button" onclick="searchPayment()">🔍 Search</button>
-      <button type="button" onclick="resetPaymentSearch()">Reset</button>
-    </div>
+        <div class="search-box">
+          <input type="text" id="paymentSearch" placeholder="Search Name, Registration No, Roll No..."
+            onkeyup="searchPayment()">
 
-    <div class="table-wrap">
-      <table class="premium-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Reg. No</th>
-            <th>Roll</th>
-            <th>Sem</th>
-            <th>Branch</th>
-            <th>Total Fee</th>
-            <th>Paid</th>
-            <th>Remaining</th>
-            <th>Date</th>
-            <th>Mode</th>
-            <th>Receipt</th>
-            <th>Status</th>
-            <th>Remark</th>
-            <th>Edit</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
+          <button type="button" onclick="searchPayment()">🔍 Search</button>
+          <button type="button" onclick="resetPaymentSearch()">Reset</button>
+        </div>
 
-        <tbody>
-          <% if (payments.length === 0) { %>
-            <tr>
-              <td colspan="15" style="text-align:center;">
-                No payment records found
-              </td>
-            </tr>
-          <% } %>
+        <div class="table-wrap">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Reg. No</th>
+                <th>Roll</th>
+                <th>Sem</th>
+                <th>Branch</th>
+                <th>Total Fee</th>
+                <th>Paid</th>
+                <th>Remaining</th>
+                <th>Date</th>
+                <th>Mode</th>
+                <th>Receipt</th>
+                <th>Status</th>
+                <th>Remark</th>
+                <th>Edit</th>
+                <th>Add 2nd Payment</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
 
-          <% payments.forEach(p => { %>
-            <tr class="payment-row">
-              <td><b><%= p.name || "N/A" %></b></td>
-              <td><%= p.registrationNo || "N/A" %></td>
-              <td><%= p.rollNo || "N/A" %></td>
-              <td><%= p.semester || "N/A" %></td>
-              <td><%= p.branch || "N/A" %></td>
-              <td>₹<%= p.totalFee || "0" %></td>
-              <td>₹<%= p.amount || "0" %></td>
-              <td>₹<%= Number(p.totalFee || 0) - Number(p.amount || 0) %></td>
-              <td><%= p.paymentDate || "N/A" %></td>
-              <td><%= p.paymentMode || "N/A" %></td>
-              <td>
-  <a
-    href="/admin/payment-receipt/<%= p.id %>"
-    class="view-btn"
-    target="_blank"
-  >
-    🧾 Money Receipt
-  </a>
+            <tbody>
+              <% if (payments.length===0) { %>
+                <tr>
+                  <td colspan="15" style="text-align:center;">
+                    No payment records found
+                  </td>
+                </tr>
+                <% } %>
+
+                  <% payments.forEach(p=> { %>
+                    <%
+const studentPayments = payments.filter(
+x => x.registrationNo === p.registrationNo
+);
+
+const totalPaid = studentPayments.reduce(
+(sum,x)=> sum + Number(x.amount || 0),
+0
+);
+
+const remaining = Number(p.totalFee || 0) - totalPaid;
+%>
+                    <tr class="payment-row">
+                      <td><b>
+                          <%= p.name || "N/A" %>
+                        </b></td>
+                      <td>
+                        <%= p.registrationNo || "N/A" %>
+                      </td>
+                      <td>
+                        <%= p.rollNo || "N/A" %>
+                      </td>
+                      <td>
+                        <%= p.semester || "N/A" %>
+                      </td>
+                      <td>
+                        <%= p.branch || "N/A" %>
+                      </td>
+                      <td>₹<%= p.totalFee || "0" %>
+                      </td>
+                      <td>₹<%= totalPaid %>
 </td>
+                      <td>₹<%= remaining %>
+</td>
+                      <td>
+                        <%= p.paymentDate || "N/A" %>
+                      </td>
+                      <td>
+                        <%= p.paymentMode || "N/A" %>
+                      </td>
+                      <td>
+                        <a href="/admin/payment-receipt/<%= p.id %>" class="view-btn" target="_blank">
+                          🧾 Money Receipt
+                        </a>
+                      </td>
 
-              <td>
-                <span class="status <%= (p.status || 'pending').toLowerCase() %>">
-                  <%= p.status || "Pending" %>
-                </span>
-              </td>
+                      <td>
+                        <span class="status <%= (p.status || 'pending').toLowerCase() %>">
+                          <%= p.status || "Pending" %>
+                        </span>
+                      </td>
 
-              <td><%= p.remark || "N/A" %></td>
+                      <td>
+                        <%= p.remark || "N/A" %>
+                      </td>
 
-              <td>
-                <a href="/admin/payments/edit/<%= p.id %>" class="view-btn">Edit</a>
-              </td>
+                      <td>
+                        <a href="/admin/payments/edit/<%= p.id %>" class="view-btn">Edit</a>
+                      </td>
 
-              <td>
-                <form action="/admin/payments/delete/<%= p.id %>" method="POST">
-                  <button class="danger">Delete</button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </div>
+                      <td>
+                        <a href="/admin/payments/add/<%= p.id %>">
+                        ➕ Add 2nd Payment
+                        </a>
+                      </td>
 
-</section>
+                      <td>
+                        <form action="/admin/payments/delete/<%= p.id %>" method="POST">
+                          <button class="danger">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-<script>
-function searchPayment() {
-  const input = document.getElementById("paymentSearch").value.toLowerCase();
-  const rows = document.querySelectorAll(".payment-row");
+    </section>
 
-  rows.forEach(row => {
-    const text = row.innerText.toLowerCase();
-    row.style.display = text.includes(input) ? "" : "none";
-  });
-}
+    <script>
+      function searchPayment() {
+        const input = document.getElementById("paymentSearch").value.toLowerCase();
+        const rows = document.querySelectorAll(".payment-row");
 
-function resetPaymentSearch() {
-  document.getElementById("paymentSearch").value = "";
+        rows.forEach(row => {
+          const text = row.innerText.toLowerCase();
+          row.style.display = text.includes(input) ? "" : "none";
+        });
+      }
 
-  document.querySelectorAll(".payment-row").forEach(row => {
-    row.style.display = "";
-  });
-}
-</script>
+      function resetPaymentSearch() {
+        document.getElementById("paymentSearch").value = "";
 
-<%- include("partials/footer") %>
+        document.querySelectorAll(".payment-row").forEach(row => {
+          row.style.display = "";
+        });
+      }
+    </script>
+
+    <%- include("partials/footer") %>
 
 </body>
+
 </html>

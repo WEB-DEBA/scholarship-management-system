@@ -3,6 +3,11 @@ require("dotenv").config();
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const { fileTypeFromFile } = require("file-type");
+const rateLimit = require("express-rate-limit");
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
@@ -33,6 +38,7 @@ const mailTransporter = nodemailer.createTransport({
     rejectUnauthorized: false
   }
 });
+
 const PORT = process.env.PORT || 3000;
 
 const mongoURI =
@@ -40,26 +46,77 @@ const mongoURI =
   process.env.MONGO_URI ||
   process.env.MONGO_URL;
 
+if (!mongoURI) {
+  console.log("❌ MongoDB URI missing in .env");
+  process.exit(1);
+}
+
+if (!process.env.SESSION_SECRET) {
+  console.log("❌ SESSION_SECRET missing in .env");
+  process.exit(1);
+}
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: "2mb"
+}));
+app.use(express.json({
+  limit: "2mb"
+}));
+app.set("trust proxy", 1);
+app.use(
+  helmet({
+    frameguard: { action: "deny" },
+    noSniff: true,
+    crossOriginEmbedderPolicy: false,
+    referrerPolicy: {
+      policy: "same-origin"
+    }
+  })
+);
+app.use(mongoSanitize());
+app.disable("x-powered-by");
+app.use(xss());
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || "scholarship_secret_key",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
-    mongoUrl: mongoURI
+    mongoUrl: mongoURI,
+    collectionName: "sessions"
   }),
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-    httpOnly: true,
-    secure: false
-  }
+  maxAge: 1000 * 60 * 60 * 24,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+  path: "/"
+},
+  rolling: true,
+  name: "pns.sid"
 }));
 
-const uploadDir = path.join(__dirname, "public", "uploads");
+const uploadDir = path.join(__dirname, "uploads");
+
+app.get("/uploads/:file", isAdmin, (req, res) => {
+  const filePath = path.resolve(uploadDir, req.params.file);
+
+  const uploadPath = path.resolve(uploadDir);
+  const requestedPath = path.resolve(filePath);
+
+  if (!requestedPath.startsWith(uploadPath)) {
+    return res.status(403).send("Access Denied");
+  }
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send("File not found");
+  }
+
+  res.sendFile(filePath);
+});
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -74,9 +131,44 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+
+    const allowedMime = [
+      "image/jpeg",
+      "image/png",
+      "application/pdf"
+    ];
+
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    const allowedExt = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".pdf"
+    ];
+
+    if (
+      allowedMime.includes(file.mimetype) &&
+      allowedExt.includes(ext)
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type"));
+    }
+  },
+
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 6
+
+  }
+});
 
 const studentSchema = new mongoose.Schema({
+  
   registrationNo: { type: String, required: true, unique: true, index: true },
   aadhaar: { type: String, required: true, unique: true, index: true },
   accountNo: { type: String, index: true },
@@ -125,6 +217,11 @@ const studentSchema = new mongoose.Schema({
   appliedDate: String
 }, { timestamps: true });
 
+studentSchema.index({
+  registrationNo: 1,
+  aadhaar: 1
+});
+
 const Student = mongoose.model("Student", studentSchema);
 
 const SavedApplication = mongoose.model(
@@ -140,8 +237,8 @@ const paymentSchema = new mongoose.Schema({
   rollNo: String,
   semester: String,
   branch: String,
-  totalFee: String,
-  amount: String,
+  totalFee: Number,
+  amount: Number,
   paymentDate: String,
   paymentMode: String,
   transactionId: String,
@@ -150,6 +247,7 @@ const paymentSchema = new mongoose.Schema({
   createdAtText: String,
   updatedAtText: String
 }, { timestamps: true });
+
 
 const Payment = mongoose.model("Payment", paymentSchema);
 
@@ -161,6 +259,10 @@ const noticeSchema = new mongoose.Schema({
   category: { type: String, default: "Scholarship" },
   priority: { type: String, default: "High" }
 }, { timestamps: true });
+
+noticeSchema.index({
+  createdAt: -1
+});
 
 const Notice = mongoose.model("Notice", noticeSchema);
 
@@ -181,24 +283,34 @@ const adminSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   phone: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  resetOtp: String,
+  resetOtp: {
+    type: String,
+    select: false
+  },
   resetOtpExpire: Date
 }, { timestamps: true });
 
 const Admin = mongoose.model("Admin", adminSchema);
 
 async function createDefaultAdmin() {
-  const adminExists = await Admin.findOne();
+  const adminExists = await Admin.findOne({
+    email: process.env.ADMIN_EMAIL
+  });
 
   if (!adminExists) {
+
+    if (!process.env.ADMIN_PASSWORD) {
+      throw new Error("ADMIN_PASSWORD missing in .env file");
+    }
+
     const hashedPassword = await bcrypt.hash(
-      process.env.ADMIN_PASSWORD || "pnssc/st.college",
-      10
+      process.env.ADMIN_PASSWORD,
+      12
     );
 
     await Admin.create({
-      email: process.env.ADMIN_EMAIL || "pnsscholarshipsystem@gmail.com",
-      phone: process.env.ADMIN_PHONE || "7978609045",
+      email: process.env.ADMIN_EMAIL,
+      phone: process.env.ADMIN_PHONE,
       password: hashedPassword
     });
 
@@ -206,7 +318,12 @@ async function createDefaultAdmin() {
   }
 }
 
-mongoose.connect(mongoURI)
+mongoose.connect(mongoURI, {
+  maxPoolSize: 20,
+  minPoolSize: 5,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000
+})
   .then(async () => {
     console.log("✅ MongoDB Connected");
     await createDefaultAdmin();
@@ -220,6 +337,14 @@ mongoose.connection.once("open", () => {
 mongoose.connection.on("error", (err) => {
   console.log("🔴 MongoDB Error:", err);
 });
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 7,
+  message: "Too many login attempts. Try again later."
+});
+
+app.post("/login", loginLimiter);
 
 function isAdmin(req, res, next) {
   if (req.session.admin) return next();
@@ -260,9 +385,22 @@ app.post("/apply", upload.fields([
   try {
     const regNo = (req.body.registrationNo || "").trim();
     const aadhaar = (req.body.aadhaar || "").trim();
+    if (
+      req.body.email &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)
+    ) {
+      return res.render("apply", {
+        error: "Invalid Email Address"
+      });
+    }
+
+    if (!/^[2-9][0-9]{11}$/.test(aadhaar)) {
+      return res.render("apply", {
+        error: "Invalid Aadhaar Number"
+      });
+    }
 
     const exists = await Student.findOne({
-      isDeleted: false,
       $or: [
         { registrationNo: regNo },
         { aadhaar: aadhaar }
@@ -274,27 +412,58 @@ app.post("/apply", upload.fields([
         error: "⚠️ This Registration Number or Aadhaar Number is already registered."
       });
     }
+    const files = req.files || {};
+
+const allowedTypes = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf"
+];
+
+for (const field in files) {
+  const uploaded = files[field][0];
+
+      const detectedType = await fileTypeFromFile(
+        path.join(uploadDir, uploaded.filename)
+      );
+
+      if (
+        !detectedType ||
+        !allowedTypes.includes(detectedType.mime)
+      ) {
+        fs.unlinkSync(
+          path.join(uploadDir, uploaded.filename)
+        );
+
+        return res.render("apply", {
+          error: "Invalid file uploaded"
+        });
+      }
+    }
 
     const newStudent = await Student.create({
       ...req.body,
       registrationNo: regNo,
       aadhaar: aadhaar,
-      aadhaarFile: req.files.aadhaarFile?.[0]?.filename || "",
-      casteFile: req.files.casteFile?.[0]?.filename || "",
-      incomeFile: req.files.incomeFile?.[0]?.filename || "",
-      photoFile: req.files.photoFile?.[0]?.filename || "",
-      bankFile: req.files.bankFile?.[0]?.filename || "",
-      marksheetFile: req.files.marksheetFile?.[0]?.filename || "",
+
+      aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
+      casteFile: files?.casteFile?.[0]?.filename || "",
+      incomeFile: files?.incomeFile?.[0]?.filename || "",
+      photoFile: files?.photoFile?.[0]?.filename || "",
+      bankFile: files?.bankFile?.[0]?.filename || "",
+      marksheetFile: files?.marksheetFile?.[0]?.filename || "",
+
       status: "Pending",
       paymentStatus: "Pending",
       isDeleted: false,
       appliedDate: new Date().toLocaleDateString()
     });
+  
 
     // Email background me jayega, page load block nahi karega
     mailTransporter.sendMail({
       from: process.env.EMAIL_USER,
-      to: process.env.ADMIN_EMAIL || "pnsscholarshipsystem@gmail.com",
+      to: process.env.ADMIN_EMAIL || "erswain.pns@gmail.com",
       subject: "New Scholarship Application Submitted",
       html: `
         <h2>New Scholarship Application</h2>
@@ -323,7 +492,9 @@ app.post("/apply", upload.fields([
       error: "⚠️ Something went wrong. Please try again."
     });
   }
-});app.get("/check", async (req, res) => {
+});
+
+app.get("/check", async (req, res) => {
   res.render("check", {
     student: null,
     payment: null,
@@ -334,19 +505,25 @@ app.post("/apply", upload.fields([
 app.post("/check", async (req, res) => {
   try {
 
-    const searchValue = (req.body.searchValue || "").trim();
+    const searchValue =
+      (req.body.searchValue || "")
+        .trim()
+        .substring(0, 50);
 
     const student = await Student.findOne({
       $or: [
         { registrationNo: searchValue },
-        { aadhaar: searchValue }
+        { aadhaar: searchValue },
+        { phone: searchValue }
       ],
       isDeleted: false
     }).lean();
 
-    const payment = await Payment.findOne({
-      registrationNo: searchValue
-    }).lean();
+    const payment = await Payment.find({
+  registrationNo: searchValue
+})
+.sort({ createdAt: -1 })
+.lean();
 
     res.render("check", {
       student,
@@ -380,7 +557,12 @@ app.post("/login", async (req, res) => {
     ]
   });
 
+  const fakeHash =
+    "$2b$10$C6UzMDM.H6dfI/f/IKcEe.8WJ9l8L5J6l4l0qK4Yf6M9m6v4sD8qK";
+
   if (!admin) {
+    await bcrypt.compare(password, fakeHash);
+
     return res.render("login", {
       error: "Invalid email/phone or password"
     });
@@ -394,12 +576,19 @@ app.post("/login", async (req, res) => {
     });
   }
 
-  req.session.admin = true;
-  req.session.adminId = admin._id;
+  req.session.regenerate((err) => {
+    if (err) {
+      return res.render("login", {
+        error: "Session Error"
+      });
+    }
 
-  res.redirect("/admin");
+    req.session.admin = true;
+    req.session.adminId = admin._id;
+
+    res.redirect("/admin");
+  });
 });
-
 app.get("/forgot-password", (req, res) => {
   res.render("forgot-password", {
     error: null,
@@ -414,7 +603,8 @@ app.post("/forgot-password", async (req, res) => {
         { email: req.body.email },
         { phone: req.body.email }
       ]
-    });
+    }).select("+resetOtp");
+
 
     if (!admin) {
       return res.render("forgot-password", {
@@ -422,16 +612,16 @@ app.post("/forgot-password", async (req, res) => {
         success: null
       });
     }
-
     const otp = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
 
-    admin.resetOtp = otp;
-    admin.resetOtpExpire =
-      Date.now() + 10 * 60 * 1000;
+
+    admin.resetOtp = await bcrypt.hash(otp, 10);
+    admin.resetOtpExpire = Date.now() + 600000;
 
     await admin.save();
+
 
     await mailTransporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -439,12 +629,12 @@ app.post("/forgot-password", async (req, res) => {
       subject: "Scholarship Portal Password Reset OTP",
 
       html: `
-        <h2>PNS Scholarship Portal</h2>
-        <p>Your OTP is:</p>
-        <h1>${otp}</h1>
-        <p>Valid for 10 minutes.</p>
-      `
+ <h2>Your OTP</h2>
+ <h1>${otp}</h1>
+ <p>Valid for 10 minutes</p>
+ `
     });
+
 
     res.render("reset-password", {
       error: null,
@@ -453,17 +643,17 @@ app.post("/forgot-password", async (req, res) => {
 
   } catch (error) {
 
-  console.log("❌ EMAIL ERROR:");
-  console.log(error);
+    console.log("❌ EMAIL ERROR:");
+    console.log(error);
 
-  res.render("forgot-password", {
-    error: error.message,
-    success: null
-  });
+    res.render("forgot-password", {
+      error: error.message,
+      success: null
+    });
 
-}
+  }
 });
-app.get("/student/receipt/:id", async (req, res) => {
+app.get("/student/receipt/:id", isAdmin, async (req, res) => {
   try {
     const student = await Student.findById(req.params.id).lean();
 
@@ -493,7 +683,12 @@ app.get("/student/receipt/:id", async (req, res) => {
     doc.fontSize(12).text(`Application ID: ${student._id}`);
     doc.text(`Name: ${student.name}`);
     doc.text(`Registration No: ${student.registrationNo}`);
-    doc.text(`Aadhaar: ${student.aadhaar}`);
+    const masked =
+      student.aadhaar
+        ? "XXXX-XXXX-" + student.aadhaar.slice(-4)
+        : "N/A";
+
+    doc.text(`Aadhaar: ${masked}`);
     doc.text(`Phone: ${student.phone}`);
     doc.text(`College: ${student.college}`);
     doc.text(`Course: ${student.course}`);
@@ -546,13 +741,14 @@ app.get("/admin/backup", isAdmin, async (req, res) => {
     const logs = await ActivityLog.find().lean();
 
     const backup = {
-      students,
-      payments,
-      notices,
-      savedApplications,
-      logs,
-      backupDate: new Date()
-    };
+  students,
+  payments,
+  notices,
+  savedApplications,
+  logs,
+  backupDate: new Date().toISOString(),
+  generatedBy: "PNS Scholarship Portal"
+};
 
     res.setHeader("Content-Type", "application/json");
     res.setHeader(
@@ -574,7 +770,7 @@ app.post("/reset-password", async (req, res) => {
       { email: req.body.email },
       { phone: req.body.email }
     ]
-  });
+  }).select("+resetOtp");
 
   if (!admin) {
     return res.render("reset-password", {
@@ -584,7 +780,8 @@ app.post("/reset-password", async (req, res) => {
   }
 
   if (
-    admin.resetOtp !== req.body.otp ||
+    !admin.resetOtp ||
+    !admin.resetOtpExpire ||
     admin.resetOtpExpire < Date.now()
   ) {
     return res.render("reset-password", {
@@ -593,43 +790,104 @@ app.post("/reset-password", async (req, res) => {
     });
   }
 
-  admin.password = await bcrypt.hash(req.body.password, 10);
-  admin.resetOtp = null;
-  admin.resetOtpExpire = null;
 
-  await admin.save();
+  const otpMatch = await bcrypt.compare(
+    req.body.otp,
+    admin.resetOtp
+  );
 
-  res.redirect("/login");
-});
 
-app.get("/admin/profile", isAdmin, async (req, res) => {
-  const admin = await Admin.findById(req.session.adminId).lean();
-
-  res.render("admin-profile", {
-    admin,
-    error: null,
-    success: null
-  });
-});
-
-app.post("/admin/profile", isAdmin, async (req, res) => {
-  const admin = await Admin.findById(req.session.adminId);
-
-  admin.email = req.body.email;
-  admin.phone = req.body.phone;
-
-  if (req.body.password) {
-    admin.password = await bcrypt.hash(req.body.password, 10);
+  if (!otpMatch) {
+    return res.render("reset-password", {
+      error: "Invalid or expired OTP",
+      email: req.body.email
+    });
   }
 
+  if (
+  !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+    .test(req.body.password)
+) {
+  return res.render("reset-password", {
+    error:
+      "Password must contain uppercase, lowercase and number",
+    email: req.body.email
+  });
+}
+  admin.password = await bcrypt.hash(
+    req.body.password,
+    12
+  );
+
+  admin.resetOtp = undefined;
+  admin.resetOtpExpire = undefined;
+
   await admin.save();
 
-  res.render("admin-profile", {
-    admin,
-    error: null,
-    success: "Profile updated successfully"
+  req.session.destroy(() => {
+    res.clearCookie("pns.sid");
+    res.redirect("/login");
   });
 });
+app.post("/admin/profile", isAdmin, async (req, res) => {
+try {
+const admin = await Admin.findById(req.session.adminId);
+
+```
+if (!admin) {
+  return res.render("admin-profile", {
+    admin: {},
+    error: "Admin not found",
+    success: null
+  });
+}
+
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
+  return res.render("admin-profile", {
+    admin,
+    error: "Invalid Email",
+    success: null
+  });
+}
+
+if (!/^[6-9]\d{9}$/.test(req.body.phone)) {
+  return res.render("admin-profile", {
+    admin,
+    error: "Invalid Phone Number",
+    success: null
+  });
+}
+
+admin.email = req.body.email.trim();
+admin.phone = req.body.phone.trim();
+
+if (req.body.password && req.body.password.trim()) {
+  admin.password = await bcrypt.hash(req.body.password, 12);
+}
+
+await admin.save();
+
+res.render("admin-profile", {
+  admin,
+  error: null,
+  success: "Profile updated successfully"
+});
+```
+
+} catch (err) {
+console.log(err);
+
+```
+res.render("admin-profile", {
+  admin: {},
+  error: "Email or Phone already exists",
+  success: null
+});
+```
+
+}
+});
+
 
 app.get("/admin", isAdmin, async (req, res) => {
   try {
@@ -779,7 +1037,7 @@ app.post("/admin/delete/:id", isAdmin, async (req, res) => {
   await addLog("Student Soft Deleted", req.params.id, "Moved to deleted records");
 
   res.redirect("/admin");
-});app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
+}); app.post("/admin/application/save/:id", isAdmin, async (req, res) => {
   try {
     const student = await Student.findById(req.params.id).lean();
 
@@ -789,11 +1047,15 @@ app.post("/admin/delete/:id", isAdmin, async (req, res) => {
 
     const { _id, __v, createdAt, updatedAt, ...studentData } = student;
 
-    await SavedApplication.create({
-      ...studentData,
-      originalStudentId: _id.toString(),
-      savedAt: new Date().toLocaleString()
-    });
+    await SavedApplication.findOneAndUpdate(
+      { originalStudentId: _id.toString() },
+      {
+        ...studentData,
+        originalStudentId: _id.toString(),
+        savedAt: new Date().toLocaleString()
+      },
+      { upsert: true }
+    );
 
     await Student.findByIdAndUpdate(req.params.id, {
       isDeleted: true
@@ -882,6 +1144,7 @@ app.post("/admin/application-details/delete/:id", isAdmin, async (req, res) => {
 });
 
 
+
 app.get("/admin/payments", isAdmin, async (req, res) => {
   const payments = await Payment.find().sort({ createdAt: -1 }).lean();
   res.render("payments", { payments });
@@ -889,35 +1152,37 @@ app.get("/admin/payments", isAdmin, async (req, res) => {
 
 app.post("/admin/payments", isAdmin, async (req, res) => {
   const payment = await Payment.create({
-    id: Date.now(),
+    id: Date.now() + Math.floor(Math.random() * 100000
+    ),
     studentId: req.body.studentId || "",
     name: req.body.name,
     registrationNo: req.body.registrationNo,
     rollNo: req.body.rollNo,
     semester: req.body.semester,
-branch: req.body.branch,
-totalFee: req.body.totalFee,
-amount: req.body.amount,
-paymentDate: req.body.paymentDate,
+    branch: req.body.branch,
+    totalFee: req.body.totalFee,
+    amount: req.body.amount,
+    paymentDate: req.body.paymentDate,
     paymentMode: req.body.paymentMode,
     transactionId: req.body.transactionId,
     status:
-  Number(req.body.amount || 0) >= Number(req.body.totalFee || 0)
-    ? "Success"
-    : "Pending",
+      Number(req.body.amount || 0) >= Number(req.body.totalFee || 0)
+        ? "Success"
+        : "Pending",
     remark: req.body.remark,
     createdAtText: new Date().toLocaleString()
+    
   });
 
   if (
-  req.body.studentId &&
-  Number(req.body.amount || 0) >= Number(req.body.totalFee || 0)
-) {
-  await Student.findByIdAndUpdate(req.body.studentId, {
-    status: "Success",
-    paymentStatus: "Paid"
-  });
-}
+    req.body.studentId &&
+    Number(req.body.amount || 0) >= Number(req.body.totalFee || 0)
+  ) {
+    await Student.findByIdAndUpdate(req.body.studentId, {
+      status: "Success",
+      paymentStatus: "Paid"
+    });
+  }
 
   await addLog("Payment Added", req.body.studentId || "", payment.registrationNo || "");
 
@@ -932,6 +1197,214 @@ app.get("/admin/payments/edit/:id", isAdmin, async (req, res) => {
   }
 
   res.render("edit-payment", { payment });
+});
+
+// ================= PAYMENT ADD PAGE =================
+
+app.get("/admin/payments/add/:id", isAdmin, async (req, res) => {
+  try {
+
+    const payment = await Payment.findOne({
+      id: Number(req.params.id)
+    }).lean();
+
+    if (!payment) {
+      return res.send("Payment not found");
+    }
+
+    const allPayments = await Payment.find({
+      registrationNo: payment.registrationNo
+    }).lean();
+
+
+    const paid = allPayments.reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0
+    );
+
+
+    const remaining =
+      Number(payment.totalFee || 0) - paid;
+
+
+    res.render("add-payment", {
+      payment,
+      remaining
+    });
+
+
+  } catch (err) {
+
+    console.log(err);
+    res.send("Add payment page error");
+
+  }
+});
+
+
+
+
+// ================= ADD SECOND PAYMENT =================
+
+app.post("/admin/payments/add/:id", isAdmin, async (req, res) => {
+
+  try {
+
+
+    const oldPayment = await Payment.findOne({
+      id: Number(req.params.id)
+    });
+
+
+    if (!oldPayment) {
+      return res.send("Payment not found");
+    }
+
+
+
+    const allPayments = await Payment.find({
+      registrationNo: oldPayment.registrationNo
+    });
+
+
+
+    const alreadyPaid = allPayments.reduce(
+      (sum, p) => sum + Number(p.amount || 0),
+      0
+    );
+
+    const addAmount = Number(req.body.amount || 0);
+
+if (addAmount <= 0) {
+  return res.send("Invalid amount");
+}
+
+    const totalFee = Number(oldPayment.totalFee || 0);
+
+
+    const finalPaid = alreadyPaid + addAmount;
+
+
+
+    const status =
+      finalPaid >= totalFee
+        ? "Success"
+        : "Pending";
+
+
+
+    await Payment.create({
+
+      id: Number(
+        `${Date.now()}${Math.floor(Math.random() * 1000)}`
+      ),
+
+      studentId: oldPayment.studentId,
+
+      name: oldPayment.name,
+
+      registrationNo: oldPayment.registrationNo,
+
+      rollNo: oldPayment.rollNo,
+
+      semester: oldPayment.semester,
+
+      branch: oldPayment.branch,
+
+      totalFee: totalFee,
+
+      amount: addAmount,
+
+      paymentDate: req.body.paymentDate,
+
+      paymentMode: req.body.paymentMode,
+
+      transactionId: req.body.transactionId,
+
+      status: status,
+
+      remark: "Additional Payment Added"
+
+    });
+
+
+
+
+
+    await Student.findOneAndUpdate(
+      {
+        registrationNo: oldPayment.registrationNo
+      },
+      {
+        status: status,
+
+        paymentStatus:
+          status === "Success"
+            ? "Paid"
+            : "Pending"
+      }
+    );
+
+
+
+    await addLog(
+      "Additional Payment Added",
+      oldPayment.registrationNo,
+      addAmount
+    );
+
+
+
+    res.redirect("/admin/payments");
+
+
+
+  } catch (err) {
+
+    console.log("ADD PAYMENT ERROR", err);
+
+    res.status(500).send("Payment add failed");
+
+  }
+
+});
+
+
+
+// ================= DELETE PAYMENT =================
+
+
+app.post("/admin/payments/delete/:id", isAdmin, async (req, res) => {
+
+
+  try {
+
+
+    await Payment.findOneAndDelete({
+      id: Number(req.params.id)
+    });
+
+
+    await addLog(
+      "Payment Deleted",
+      "",
+      req.params.id
+    );
+
+
+
+    res.redirect("/admin/payments");
+
+
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.send("Delete failed");
+
+  }
+
 });
 app.post("/admin/payments/edit/:id", isAdmin, async (req, res) => {
   const updatedPayment = await Payment.findOneAndUpdate(
@@ -969,14 +1442,14 @@ app.post("/admin/payments/edit/:id", isAdmin, async (req, res) => {
 
     if (student && student.email) {
 
-  let subject = "";
-  let html = "";
+      let subject = "";
+      let html = "";
 
-  if (updatedPayment.status === "Success") {
+      if (updatedPayment.status === "Success") {
 
-    subject = "Scholarship Payment Successful";
+        subject = "Scholarship Payment Successful";
 
-    html = `
+        html = `
       <h2>PNS Scholarship Portal</h2>
       <p>Dear ${student.name},</p>
 
@@ -989,15 +1462,15 @@ app.post("/admin/payments/edit/:id", isAdmin, async (req, res) => {
       <p>Thank you.</p>
     `;
 
-  } else if (updatedPayment.status === "Pending") {
+      } else if (updatedPayment.status === "Pending") {
 
-    const remaining =
-      Number(updatedPayment.totalFee || 0) -
-      Number(updatedPayment.amount || 0);
+        const remaining =
+          Number(updatedPayment.totalFee || 0) -
+          Number(updatedPayment.amount || 0);
 
-    subject = "Scholarship Payment Pending";
+        subject = "Scholarship Payment Pending";
 
-    html = `
+        html = `
       <h2>PNS Scholarship Portal</h2>
       <p>Dear ${student.name},</p>
 
@@ -1009,15 +1482,15 @@ app.post("/admin/payments/edit/:id", isAdmin, async (req, res) => {
 
       <p><b>Status:</b> Pending</p>
     `;
-  }
+      }
 
-  await mailTransporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: student.email,
-    subject,
-    html
-  });
-}
+      await mailTransporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: student.email,
+        subject,
+        html
+      });
+    }
   }
 
   await addLog("Payment Edited", "", req.params.id);
@@ -1025,13 +1498,6 @@ app.post("/admin/payments/edit/:id", isAdmin, async (req, res) => {
   res.redirect("/admin/payments");
 });
 
-app.post("/admin/payments/delete/:id", isAdmin, async (req, res) => {
-  await Payment.findOneAndDelete({ id: Number(req.params.id) });
-
-  await addLog("Payment Deleted", "", req.params.id);
-
-  res.redirect("/admin/payments");
-});
 
 app.post("/admin/whatsapp", isAdmin, (req, res) => {
   const phones = req.body.phones;
@@ -1062,7 +1528,7 @@ app.get("/admin/fraud", isAdmin, async (req, res) => {
 
   students.forEach(s => {
     if (s.aadhaar) aadhaarMap[s.aadhaar] = (aadhaarMap[s.aadhaar] || 0) + 1;
-    if (s.accountNo) bankMap[s.accountNo] = (bankMap[s.accountNo] || 0) + 1;
+    if (s.accountNo?.trim()) bankMap[s.accountNo] = (bankMap[s.accountNo] || 0) + 1;
   });
 
   const duplicateAadhaar = students.filter(s => aadhaarMap[s.aadhaar] > 1);
@@ -1127,7 +1593,16 @@ app.get("/admin/export/excel", isAdmin, async (req, res) => {
     { header: "Status", key: "status", width: 15 }
   ];
 
-  students.forEach(s => sheet.addRow(s));
+  students.forEach(s => {
+
+    sheet.addRow({
+      ...s,
+      aadhaar: s.aadhaar
+        ? "XXXX-XXXX-" + s.aadhaar.slice(-4)
+        : ""
+    });
+
+  });
 
   res.setHeader(
     "Content-Type",
@@ -1159,7 +1634,10 @@ app.get("/admin/export/pdf", isAdmin, async (req, res) => {
 
   students.forEach((s, i) => {
     doc.fontSize(11).text(
-      `${i + 1}. ${s.name || "N/A"} | Reg: ${s.registrationNo || "N/A"} | Aadhaar: ${s.aadhaar || "N/A"} | Branch: ${s.branch || "N/A"} | Sem: ${s.semester || "N/A"} | Payment: ${s.paymentStatus || "Pending"} | Status: ${s.status || "Pending"}`
+      `${i + 1}. ${s.name || "N/A"} | Reg: ${s.registrationNo || "N/A"} | Aadhaar: ${s.aadhaar
+        ? "XXXX-XXXX-" + s.aadhaar.slice(-4)
+        : "N/A"
+      } | Branch: ${s.branch || "N/A"} | Sem: ${s.semester || "N/A"} | Payment: ${s.paymentStatus || "Pending"} | Status: ${s.status || "Pending"}`
     );
   });
 
@@ -1168,7 +1646,9 @@ app.get("/admin/export/pdf", isAdmin, async (req, res) => {
 
 app.post("/admin/notice", isAdmin, async (req, res) => {
   await Notice.create({
-    id: Date.now(),
+    id: Number(
+      `${Date.now()}${Math.floor(Math.random() * 1000)}`
+    ),
     title: req.body.title,
     message: req.body.message,
     date: new Date().toLocaleDateString(),
@@ -1181,16 +1661,21 @@ app.post("/admin/notice", isAdmin, async (req, res) => {
   res.redirect("/admin");
 });
 
-app.post("/admin/notice/delete/:index", isAdmin, async (req, res) => {
-  const notices = await Notice.find().sort({ createdAt: -1 }).lean();
-  const notice = notices[Number(req.params.index)];
+app.post("/admin/notice/delete/:id", isAdmin, async (req, res) => {
+
+  const notice = await Notice.findById(req.params.id);
 
   if (notice) {
-    await Notice.findByIdAndDelete(notice._id);
-    await addLog("Notice Deleted", "", notice.title);
+    await Notice.findByIdAndDelete(req.params.id);
+    await addLog(
+      "Notice Deleted",
+      "",
+      notice.title
+    );
   }
 
   res.redirect("/admin");
+
 });
 
 app.get("/admin/logs", isAdmin, async (req, res) => {
@@ -1210,6 +1695,8 @@ app.get("/admin/payment-receipt/:id", isAdmin, async (req, res) => {
     if (!payment) {
       return res.send("Payment record not found");
     }
+    if (!payment.amount) payment.amount = 0;
+    if (!payment.totalFee) payment.totalFee = 0;
 
     const remaining =
       Number(payment.totalFee || 0) - Number(payment.amount || 0);
@@ -1290,12 +1777,31 @@ app.get("/admin/payment-receipt/:id", isAdmin, async (req, res) => {
   }
 });
 
-app.get("/logout", (req, res) => {
+app.post("/logout", (req, res) => {
   req.session.destroy(() => {
+    res.clearCookie("pns.sid");
     res.redirect("/");
   });
 });
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).send(err.message);
+  }
+
+  res.status(500).render("error", {
+    message: "Something went wrong"
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+process.on("SIGINT", async () => {
+  await mongoose.connection.close();
+  console.log("MongoDB disconnected");
+  process.exit(0);
 });
