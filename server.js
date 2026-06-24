@@ -472,22 +472,26 @@ app.post("/apply", upload.fields([
           error: "Registration or Aadhaar already exists"
         });
       }
+newStudent = new Student({
+  ...req.body,
 
-      newStudent = await Student.create([{
-        ...req.body,
-        registrationNo: regNo,
-        aadhaar: aadhaar,
-        aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
-        casteFile: files?.casteFile?.[0]?.filename || "",
-        incomeFile: files?.incomeFile?.[0]?.filename || "",
-        photoFile: files?.photoFile?.[0]?.filename || "",
-        bankFile: files?.bankFile?.[0]?.filename || "",
-        marksheetFile: files?.marksheetFile?.[0]?.filename || "",
-        status: "Pending",
-        paymentStatus: "Pending",
-        isDeleted: false,
-        appliedDate: new Date().toLocaleDateString()
-      }], { session });
+  registrationNo: regNo,
+  aadhaar: aadhaar,
+
+  aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
+  casteFile: files?.casteFile?.[0]?.filename || "",
+  incomeFile: files?.incomeFile?.[0]?.filename || "",
+  photoFile: files?.photoFile?.[0]?.filename || "",
+  bankFile: files?.bankFile?.[0]?.filename || "",
+  marksheetFile: files?.marksheetFile?.[0]?.filename || "",
+
+  status: "Pending",
+  paymentStatus: "Pending",
+  isDeleted: false,
+  appliedDate: new Date().toLocaleDateString()
+});
+
+await newStudent.save();
 
       await session.commitTransaction();
       session.endSession();
@@ -508,17 +512,22 @@ app.post("/apply", upload.fields([
   html: `
     <h2>New Scholarship Application</h2>
 
-    <p><b>Name:</b> ${newStudent[0].name || "N/A"}</p>
+    <p><b>Name:</b> ${newStudent.name || "N/A"}</p>
 
-    <p><b>Registration No:</b> ${newStudent[0].registrationNo || "N/A"}</p>
+<p><b>Registration No:</b> 
+${newStudent.registrationNo || "N/A"}</p>
 
-    <p><b>Phone:</b> ${newStudent[0].phone || "N/A"}</p>
+<p><b>Phone:</b> 
+${newStudent.phone || "N/A"}</p>
 
-    <p><b>Branch:</b> ${newStudent[0].branch || "N/A"}</p>
+<p><b>Branch:</b>
+${newStudent.branch || "N/A"}</p>
 
-    <p><b>Semester:</b> ${newStudent[0].semester || "N/A"}</p>
+<p><b>Semester:</b>
+${newStudent.semester || "N/A"}</p>
 
-    <p><b>College:</b> ${newStudent[0].college || "N/A"}</p>
+<p><b>College:</b>
+${newStudent.college || "N/A"}</p>
 
     <br>
 
@@ -543,44 +552,63 @@ app.post("/apply", upload.fields([
       error: "⚠️ Something went wrong. Please try again."
     });
   }
+});app.post("/check", async (req,res)=>{
+
+try{
+
+const searchValue =
+(req.body.searchValue || "").trim();
+
+
+const student = await Student.findOne({
+$or:[
+ {registrationNo:searchValue},
+ {aadhaar:searchValue}
+],
+isDeleted:false
+}).lean();
+
+
+let payment=null;
+
+
+if(student){
+
+payment = await Payment.findOne({
+registrationNo:student.registrationNo
+})
+.sort({createdAt:-1})
+.lean();
+
+}
+
+
+res.render("check",{
+student,
+payment,
+searched:true,
+csrfToken:req.csrfToken()
 });
-app.post("/check", async (req, res) => {
-  try {
-    const searchValue = (req.body.searchValue || "").trim();
 
-    const student = await Student.findOne({
-      registrationNo: searchValue,
-      isDeleted: false
-    }).lean();
 
-    const payment = await Payment.findOne({
-      registrationNo: searchValue
-    })
-      .sort({ createdAt: -1 })
-      .lean();
+}catch(err){
 
-    res.render("check", {
-      student,
-      payment,
-      searched: true,
-      csrfToken: req.csrfToken()
-    });
+console.log("CHECK ERROR:",err);
 
-  } catch (err) {
 
-    console.log("CHECK ERROR:", err);
+res.render("check",{
+student:null,
+payment:null,
+searched:true,
+csrfToken:req.csrfToken()
+});
 
-    res.render("check", {
-      student: null,
-      payment: null,
-      searched: true,
-      csrfToken: req.csrfToken()
-    });
-  }
+}
+
 });app.get("/check", async (req, res) => {
   try {
 
-    const reg = req.query.reg;
+    const reg = (req.query.reg || "").trim();
 
     if (!reg) {
       return res.render("check", {
