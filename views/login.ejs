@@ -96,17 +96,22 @@
         <% } %>
 
         <!-- Hidden Autofill Block -->
-        <input
-          type="text"
-          name="fakeusernameremembered"
-          style="display:none"
-        >
+        <!-- Hidden Autofill Block -->
+<input
+  type="text"
+  name="fakeusernameremembered"
+  autocomplete="username"
+  tabindex="-1"
+  style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"
+>
 
-        <input
-          type="password"
-          name="fakepasswordremembered"
-          style="display:none"
-        >
+<input
+  type="password"
+  name="fakepasswordremembered"
+  autocomplete="current-password"
+  tabindex="-1"
+  style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"
+>
 
         <div class="input-box">
 

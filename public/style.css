@@ -7270,3 +7270,78 @@ img{
     display:flex !important;
   }
 }
+input[type="hidden"]{
+    display:none !important;
+}
+
+input[name="fakeusernameremembered"],
+input[name="fakepasswordremembered"]{
+    position:absolute !important;
+    left:-9999px !important;
+    width:1px !important;
+    height:1px !important;
+    opacity:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:none !important;
+}
+/* College Highlight Mobile Fix */
+
+@media(max-width:768px){
+
+  .college-highlight,
+  .highlight-card,
+  .campus-card,
+  .gallery-card{
+      height:auto !important;
+      min-height:auto !important;
+      overflow:hidden !important;
+  }
+
+
+  .college-highlight img,
+  .highlight-card img,
+  .campus-card img,
+  .gallery-card img{
+      width:100% !important;
+      height:auto !important;
+      object-fit:cover !important;
+      display:block !important;
+  }
+
+
+  .college-highlight .content,
+  .highlight-card .content,
+  .campus-card .content,
+  .gallery-card .content{
+      position:relative !important;
+      bottom:auto !important;
+      left:auto !important;
+      right:auto !important;
+      padding:15px !important;
+      background:white !important;
+  }
+
+
+  .college-highlight h3,
+  .highlight-card h3,
+  .campus-card h3,
+  .gallery-card h3{
+      font-size:17px !important;
+  }
+
+
+  .college-highlight p,
+  .highlight-card p,
+  .campus-card p,
+  .gallery-card p{
+      font-size:14px !important;
+      line-height:1.5 !important;
+  }
+
+}
+.whatsapp-float img{
+    width:40px !important;
+    height:40px !important;
+    display:block !important;
+}

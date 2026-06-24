@@ -99,6 +99,10 @@ app.use(session({
 app.use(csrf({
   cookie: false
 }));
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 const uploadDir = path.join(__dirname, "uploads");
 
@@ -447,6 +451,7 @@ app.post("/apply", upload.fields([
         });
       }
     }
+    let newStudent;
     const session = await mongoose.startSession();
 
     try {
@@ -468,7 +473,7 @@ app.post("/apply", upload.fields([
         });
       }
 
-      const newStudent = await Student.create([{
+      newStudent = await Student.create([{
         ...req.body,
         registrationNo: regNo,
         aadhaar: aadhaar,
@@ -539,33 +544,16 @@ app.post("/apply", upload.fields([
     });
   }
 });
-
-app.get("/check", async (req, res) => {
-  res.render("check", {
-    student: null,
-    payment: null,
-    searched: false
-  });
-});
-
 app.post("/check", async (req, res) => {
   try {
-
-    const searchValue =
-      (req.body.searchValue || "")
-        .trim()
-        .substring(0, 50);
+    const searchValue = (req.body.searchValue || "").trim();
 
     const student = await Student.findOne({
-      $or: [
-        { registrationNo: searchValue },
-        { aadhaar: searchValue },
-        { phone: searchValue }
-      ],
+      registrationNo: searchValue,
       isDeleted: false
     }).lean();
 
-    const payment = await Payment.find({
+    const payment = await Payment.findOne({
       registrationNo: searchValue
     })
       .sort({ createdAt: -1 })
@@ -574,18 +562,64 @@ app.post("/check", async (req, res) => {
     res.render("check", {
       student,
       payment,
-      searched: true
+      searched: true,
+      csrfToken: req.csrfToken()
     });
 
-  } catch (error) {
+  } catch (err) {
 
-    console.log("CHECK ERROR:", error);
+    console.log("CHECK ERROR:", err);
 
     res.render("check", {
       student: null,
       payment: null,
-      searched: true
+      searched: true,
+      csrfToken: req.csrfToken()
     });
+  }
+});app.get("/check", async (req, res) => {
+  try {
+
+    const reg = req.query.reg;
+
+    if (!reg) {
+      return res.render("check", {
+        student: null,
+        payment: null,
+        searched: false,
+        csrfToken: req.csrfToken()
+      });
+    }
+
+    const student = await Student.findOne({
+      registrationNo: reg,
+      isDeleted: false
+    }).lean();
+
+    const payment = await Payment.findOne({
+      registrationNo: reg
+    })
+    .sort({ createdAt: -1 })
+    .lean();
+
+    res.render("check", {
+      student,
+      payment,
+      searched: true,
+      csrfToken: req.csrfToken()
+    });
+
+  } catch (err) {
+
+    console.log("CHECK PAGE ERROR:", err);
+
+    res.render("check", {
+      student: null,
+      payment: null,
+      searched: false,
+      csrfToken: req.csrfToken()
+    });
+
   }
 });
 
