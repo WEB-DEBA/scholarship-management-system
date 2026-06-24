@@ -3,6 +3,7 @@
 
 <head>
   <title>Scholarship Payment Records</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -35,6 +36,7 @@
         </div>
 
         <form action="/admin/payments" method="POST" class="payment-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <input type="text" name="name" placeholder="Student Name" required>
           <input type="text" name="registrationNo" placeholder="Registration Number" required>
           <input type="text" name="rollNo" placeholder="Roll Number">
@@ -195,8 +197,12 @@ const remaining = Number(p.totalFee || 0) - totalPaid;
 
                       <td>
                         <form action="/admin/payments/delete/<%= p.id %>" method="POST">
-                          <button class="danger">Delete</button>
-                        </form>
+
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+<button class="danger">Delete</button>
+
+</form>
                       </td>
                     </tr>
                     <% }) %>
@@ -228,6 +234,7 @@ const remaining = Number(p.totalFee || 0) - totalPaid;
     </script>
 
     <%- include("partials/footer") %>
+<script src="/js/main.js"></script>
 
 </body>
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scholarship Management System</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
@@ -129,17 +130,6 @@
 </section>  
 
 
-<script>
-let collegeSlides = document.querySelectorAll(".college-slide");
-let collegeIndex = 0;
-
-setInterval(() => {
-  collegeSlides[collegeIndex].classList.remove("active");
-  collegeIndex = (collegeIndex + 1) % collegeSlides.length;
-  collegeSlides[collegeIndex].classList.add("active");
-}, 3500);
-</script>
-
 
 <section class="latest latest-premium">
   <h2>Latest Scholarship Notices</h2>
@@ -185,6 +175,7 @@ setInterval(() => {
 </section>
 
 <%- include("partials/footer") %>
+<script src="/js/main.js"></script>
 
 </body>
 </html>

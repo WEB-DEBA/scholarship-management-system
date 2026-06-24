@@ -5,6 +5,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
+const csrf = require("csurf");
 const { fileTypeFromFile } = require("file-type");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
@@ -20,6 +21,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const QRCode = require("qrcode");
 const archiver = require("archiver");
+const { MongoClient } = require("mongodb");
 const MongoStore = require("connect-mongo");
 
 const app = express();
@@ -32,10 +34,6 @@ const mailTransporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
-
-  tls: {
-    rejectUnauthorized: false
-  }
 });
 
 const PORT = process.env.PORT || 3000;
@@ -56,6 +54,7 @@ if (!process.env.SESSION_SECRET) {
 }
 
 app.set("view engine", "ejs");
+
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
   extended: true,
@@ -77,7 +76,6 @@ app.use(
 );
 // app.use(mongoSanitize());
 app.disable("x-powered-by");
-
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -87,14 +85,19 @@ app.use(session({
     collectionName: "sessions"
   }),
   cookie: {
-  maxAge: 1000 * 60 * 60 * 24,
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
-  path: "/"
-},
-  rolling: true,
+    maxAge: 1000 * 60 * 60 * 24,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/"
+  },
   name: "pns.sid"
+}));
+
+
+// CSRF MUST come after session
+app.use(csrf({
+  cookie: false
 }));
 
 const uploadDir = path.join(__dirname, "uploads");
@@ -105,10 +108,9 @@ app.get("/uploads/:file", isAdmin, (req, res) => {
   const uploadPath = path.resolve(uploadDir);
   const requestedPath = path.resolve(filePath);
 
-  if (!requestedPath.startsWith(uploadPath)) {
-    return res.status(403).send("Access Denied");
-  }
-
+  if (!requestedPath.startsWith(uploadPath + path.sep)) {
+ return res.status(403).send("Access Denied");
+}
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
@@ -166,7 +168,7 @@ const upload = multer({
 });
 
 const studentSchema = new mongoose.Schema({
-  
+
   registrationNo: { type: String, required: true, unique: true, index: true },
   aadhaar: { type: String, required: true, unique: true, index: true },
   accountNo: { type: String, index: true },
@@ -316,17 +318,21 @@ async function createDefaultAdmin() {
   }
 }
 
-mongoose.connect(mongoURI, {
-  maxPoolSize: 20,
-  minPoolSize: 5,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000
+mongoose.connect(mongoURI)
+.then(async()=>{
+
+console.log("✅ MongoDB Connected");
+
+await createDefaultAdmin();
+
+app.listen(PORT,()=>{
+ console.log(`Server running http://localhost:${PORT}`);
+});
+
 })
-  .then(async () => {
-    console.log("✅ MongoDB Connected");
-    await createDefaultAdmin();
-  })
-  .catch((err) => console.log("❌ MongoDB Error:", err));
+.catch(err=>{
+ console.log("❌ Mongo Error",err);
+});
 
 mongoose.connection.once("open", () => {
   console.log("🟢 MongoDB Database Connected Successfully");
@@ -383,14 +389,14 @@ app.post("/apply", upload.fields([
   try {
     const regNo = (req.body.registrationNo || "").trim();
     const aadhaar = (req.body.aadhaar || "").trim();
-    if (
-      req.body.email &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)
-    ) {
-      return res.render("apply", {
-        error: "Invalid Email Address"
-      });
-    }
+   if (
+ req.body.email &&
+ !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(req.body.email)
+) {
+ return res.render("apply", {
+  error: "Invalid Email Address"
+ });
+}
 
     if (!/^[2-9][0-9]{11}$/.test(aadhaar)) {
       return res.render("apply", {
@@ -402,24 +408,25 @@ app.post("/apply", upload.fields([
       $or: [
         { registrationNo: regNo },
         { aadhaar: aadhaar }
-      ]
-    });
+      ],
+      isDeleted: false
+    }).lean();
 
     if (exists) {
       return res.render("apply", {
-        error: "⚠️ This Registration Number or Aadhaar Number is already registered."
+        error: "Registration Number or Aadhaar already exists"
       });
     }
     const files = req.files || {};
 
-const allowedTypes = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf"
-];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "application/pdf"
+    ];
 
-for (const field in files) {
-  const uploaded = files[field][0];
+    for (const field in files) {
+      const uploaded = files[field][0];
 
       const detectedType = await fileTypeFromFile(
         path.join(uploadDir, uploaded.filename)
@@ -429,51 +436,92 @@ for (const field in files) {
         !detectedType ||
         !allowedTypes.includes(detectedType.mime)
       ) {
-        fs.unlinkSync(
-          path.join(uploadDir, uploaded.filename)
-        );
+        try {
+          fs.unlinkSync(
+            path.join(uploadDir, uploaded.filename)
+          );
+        } catch { }
 
         return res.render("apply", {
           error: "Invalid file uploaded"
         });
       }
     }
+    const session = await mongoose.startSession();
 
-    const newStudent = await Student.create({
-      ...req.body,
-      registrationNo: regNo,
-      aadhaar: aadhaar,
+    try {
+      session.startTransaction();
 
-      aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
-      casteFile: files?.casteFile?.[0]?.filename || "",
-      incomeFile: files?.incomeFile?.[0]?.filename || "",
-      photoFile: files?.photoFile?.[0]?.filename || "",
-      bankFile: files?.bankFile?.[0]?.filename || "",
-      marksheetFile: files?.marksheetFile?.[0]?.filename || "",
+      const existing = await Student.findOne({
+        $or: [
+          { registrationNo: regNo },
+          { aadhaar: aadhaar }
+        ]
+      }).session(session);
 
-      status: "Pending",
-      paymentStatus: "Pending",
-      isDeleted: false,
-      appliedDate: new Date().toLocaleDateString()
-    });
-  
+      if (existing) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.render("apply", {
+          error: "Registration or Aadhaar already exists"
+        });
+      }
+
+      const newStudent = await Student.create([{
+        ...req.body,
+        registrationNo: regNo,
+        aadhaar: aadhaar,
+        aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
+        casteFile: files?.casteFile?.[0]?.filename || "",
+        incomeFile: files?.incomeFile?.[0]?.filename || "",
+        photoFile: files?.photoFile?.[0]?.filename || "",
+        bankFile: files?.bankFile?.[0]?.filename || "",
+        marksheetFile: files?.marksheetFile?.[0]?.filename || "",
+        status: "Pending",
+        paymentStatus: "Pending",
+        isDeleted: false,
+        appliedDate: new Date().toLocaleDateString()
+      }], { session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
+
+
 
     // Email background me jayega, page load block nahi karega
     mailTransporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.ADMIN_EMAIL || "erswain.pns@gmail.com",
-      subject: "New Scholarship Application Submitted",
-      html: `
-        <h2>New Scholarship Application</h2>
-        <p><b>Name:</b> ${newStudent.name || "N/A"}</p>
-        <p><b>Registration No:</b> ${newStudent.registrationNo || "N/A"}</p>
-        <p><b>Phone:</b> ${newStudent.phone || "N/A"}</p>
-        <p><b>Branch:</b> ${newStudent.branch || "N/A"}</p>
-        <p><b>Semester:</b> ${newStudent.semester || "N/A"}</p>
-      `
-    }).catch(err => {
-      console.log("Apply email failed:", err.message);
-    });
+  from: process.env.EMAIL_USER,
+  to: process.env.ADMIN_EMAIL || "erswain.pns@gmail.com",
+  subject: "New Scholarship Application Submitted",
+  html: `
+    <h2>New Scholarship Application</h2>
+
+    <p><b>Name:</b> ${newStudent[0].name || "N/A"}</p>
+
+    <p><b>Registration No:</b> ${newStudent[0].registrationNo || "N/A"}</p>
+
+    <p><b>Phone:</b> ${newStudent[0].phone || "N/A"}</p>
+
+    <p><b>Branch:</b> ${newStudent[0].branch || "N/A"}</p>
+
+    <p><b>Semester:</b> ${newStudent[0].semester || "N/A"}</p>
+
+    <p><b>College:</b> ${newStudent[0].college || "N/A"}</p>
+
+    <br>
+
+    <p>Check admin panel for full details.</p>
+  `
+}).catch(err => {
+  console.log("Apply email failed:", err.message);
+});
 
     return res.redirect(`/check?reg=${encodeURIComponent(regNo)}`);
 
@@ -518,10 +566,10 @@ app.post("/check", async (req, res) => {
     }).lean();
 
     const payment = await Payment.find({
-  registrationNo: searchValue
-})
-.sort({ createdAt: -1 })
-.lean();
+      registrationNo: searchValue
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.render("check", {
       student,
@@ -542,7 +590,10 @@ app.post("/check", async (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", { error: null });
+  res.render("login", {
+    error: null,
+    csrfToken: req.csrfToken()
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -562,7 +613,8 @@ app.post("/login", async (req, res) => {
     await bcrypt.compare(password, fakeHash);
 
     return res.render("login", {
-      error: "Invalid email/phone or password"
+      error: "Invalid email/phone or password",
+      csrfToken: req.csrfToken()
     });
   }
 
@@ -570,7 +622,8 @@ app.post("/login", async (req, res) => {
 
   if (!match) {
     return res.render("login", {
-      error: "Invalid email/phone or password"
+      error: "Invalid email/phone or password",
+      csrfToken: req.csrfToken()
     });
   }
 
@@ -590,10 +643,18 @@ app.post("/login", async (req, res) => {
 app.get("/forgot-password", (req, res) => {
   res.render("forgot-password", {
     error: null,
-    success: null
+    success: null,
+    csrfToken: req.csrfToken()
   });
 });
-app.post("/forgot-password", async (req, res) => {
+
+const otpLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: "Too many OTP requests. Try again later."
+});
+
+app.post("/forgot-password", otpLimiter, async (req, res) => {
   try {
 
     const admin = await Admin.findOne({
@@ -603,12 +664,12 @@ app.post("/forgot-password", async (req, res) => {
       ]
     }).select("+resetOtp");
 
-
     if (!admin) {
       return res.render("forgot-password", {
-        error: "Admin not found",
-        success: null
-      });
+  error: "Admin not found",
+  success: null,
+  csrfToken: req.csrfToken()
+});
     }
     const otp = Math.floor(
       100000 + Math.random() * 900000
@@ -644,10 +705,11 @@ app.post("/forgot-password", async (req, res) => {
     console.log("❌ EMAIL ERROR:");
     console.log(error);
 
-    res.render("forgot-password", {
-      error: error.message,
-      success: null
-    });
+   res.render("forgot-password", {
+  error: error.message,
+  success: null,
+  csrfToken: req.csrfToken()
+});
 
   }
 });
@@ -739,14 +801,14 @@ app.get("/admin/backup", isAdmin, async (req, res) => {
     const logs = await ActivityLog.find().lean();
 
     const backup = {
-  students,
-  payments,
-  notices,
-  savedApplications,
-  logs,
-  backupDate: new Date().toISOString(),
-  generatedBy: "PNS Scholarship Portal"
-};
+      students,
+      payments,
+      notices,
+      savedApplications,
+      logs,
+      backupDate: new Date().toISOString(),
+      generatedBy: "PNS Scholarship Portal"
+    };
 
     res.setHeader("Content-Type", "application/json");
     res.setHeader(
@@ -803,15 +865,15 @@ app.post("/reset-password", async (req, res) => {
   }
 
   if (
-  !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
-    .test(req.body.password)
-) {
-  return res.render("reset-password", {
-    error:
-      "Password must contain uppercase, lowercase and number",
-    email: req.body.email
-  });
-}
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+      .test(req.body.password)
+  ) {
+    return res.render("reset-password", {
+      error:
+        "Password must contain uppercase, lowercase and number",
+      email: req.body.email
+    });
+  }
   admin.password = await bcrypt.hash(
     req.body.password,
     12
@@ -828,63 +890,84 @@ app.post("/reset-password", async (req, res) => {
   });
 });
 app.post("/admin/profile", isAdmin, async (req, res) => {
-try {
-const admin = await Admin.findById(req.session.adminId);
+  try {
 
-```
-if (!admin) {
-  return res.render("admin-profile", {
-    admin: {},
-    error: "Admin not found",
-    success: null
-  });
-}
+    const admin = await Admin.findById(req.session.adminId);
 
-if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
-  return res.render("admin-profile", {
-    admin,
-    error: "Invalid Email",
-    success: null
-  });
-}
+    if (!admin) {
+      return res.render("admin-profile", {
+        admin: {},
+        error: "Admin not found",
+        success: null
+      });
+    }
 
-if (!/^[6-9]\d{9}$/.test(req.body.phone)) {
-  return res.render("admin-profile", {
-    admin,
-    error: "Invalid Phone Number",
-    success: null
-  });
-}
 
-admin.email = req.body.email.trim();
-admin.phone = req.body.phone.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
+      return res.render("admin-profile", {
+        admin,
+        error: "Invalid Email",
+        success: null
+      });
+    }
 
-if (req.body.password && req.body.password.trim()) {
-  admin.password = await bcrypt.hash(req.body.password, 12);
-}
 
-await admin.save();
+    if (!/^[6-9]\d{9}$/.test(req.body.phone)) {
+      return res.render("admin-profile", {
+        admin,
+        error: "Invalid Phone Number",
+        success: null
+      });
+    }
 
-res.render("admin-profile", {
-  admin,
-  error: null,
-  success: "Profile updated successfully"
+
+    admin.email = req.body.email.trim();
+    admin.phone = req.body.phone.trim();
+
+
+    if (req.body.password && req.body.password.trim()) {
+
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+        .test(req.body.password)) {
+
+        return res.render("admin-profile", {
+          admin,
+          error:
+          "Password must contain uppercase, lowercase and number",
+          success:null
+        });
+      }
+
+      admin.password = await bcrypt.hash(
+        req.body.password,
+        12
+      );
+    }
+
+
+    await admin.save();
+
+
+    res.render("admin-profile", {
+      admin,
+      error:null,
+      success:"Profile updated successfully"
+    });
+
+
+  } catch(err){
+
+    console.log("PROFILE ERROR:",err);
+
+    res.render("admin-profile", {
+      admin:{},
+      error:"Email or Phone already exists",
+      success:null
+    });
+
+  }
 });
-```
 
-} catch (err) {
-console.log(err);
-
-```
-res.render("admin-profile", {
-  admin: {},
-  error: "Email or Phone already exists",
-  success: null
-});
-```
-
-}
-});
 
 
 app.get("/admin", isAdmin, async (req, res) => {
@@ -1145,12 +1228,16 @@ app.post("/admin/application-details/delete/:id", isAdmin, async (req, res) => {
 
 app.get("/admin/payments", isAdmin, async (req, res) => {
   const payments = await Payment.find().sort({ createdAt: -1 }).lean();
-  res.render("payments", { payments });
+ res.render("payments", {
+  payments,
+  csrfToken: req.csrfToken()
 });
-
+});
 app.post("/admin/payments", isAdmin, async (req, res) => {
   const payment = await Payment.create({
-    id: Date.now() + Math.floor(Math.random() * 100000
+    id: Number(
+      `${Date.now()}${Math.floor(Math.random() * 1000)}`
+
     ),
     studentId: req.body.studentId || "",
     name: req.body.name,
@@ -1169,7 +1256,7 @@ app.post("/admin/payments", isAdmin, async (req, res) => {
         : "Pending",
     remark: req.body.remark,
     createdAtText: new Date().toLocaleString()
-    
+
   });
 
   if (
@@ -1226,9 +1313,10 @@ app.get("/admin/payments/add/:id", isAdmin, async (req, res) => {
 
 
     res.render("add-payment", {
-      payment,
-      remaining
-    });
+  payment,
+  remaining,
+  csrfToken: req.csrfToken()
+});
 
 
   } catch (err) {
@@ -1273,9 +1361,9 @@ app.post("/admin/payments/add/:id", isAdmin, async (req, res) => {
 
     const addAmount = Number(req.body.amount || 0);
 
-if (addAmount <= 0) {
-  return res.send("Invalid amount");
-}
+    if (addAmount <= 0) {
+      return res.send("Invalid amount");
+    }
 
     const totalFee = Number(oldPayment.totalFee || 0);
 
@@ -1290,44 +1378,18 @@ if (addAmount <= 0) {
         : "Pending";
 
 
-
-    await Payment.create({
-
-      id: Number(
-        `${Date.now()}${Math.floor(Math.random() * 1000)}`
-      ),
-
-      studentId: oldPayment.studentId,
-
-      name: oldPayment.name,
-
-      registrationNo: oldPayment.registrationNo,
-
-      rollNo: oldPayment.rollNo,
-
-      semester: oldPayment.semester,
-
-      branch: oldPayment.branch,
-
-      totalFee: totalFee,
-
-      amount: addAmount,
-
-      paymentDate: req.body.paymentDate,
-
-      paymentMode: req.body.paymentMode,
-
-      transactionId: req.body.transactionId,
-
-      status: status,
-
-      remark: "Additional Payment Added"
-
-    });
-
-
-
-
+    await Payment.findOneAndUpdate(
+      { id: Number(req.params.id) },
+      {
+        amount: finalPaid,
+        paymentDate: req.body.paymentDate,
+        paymentMode: req.body.paymentMode,
+        transactionId: req.body.transactionId,
+        status: status,
+        remark: "Additional Payment Added",
+        updatedAtText: new Date().toLocaleString()
+      }
+    );
 
     await Student.findOneAndUpdate(
       {
@@ -1782,7 +1844,11 @@ app.post("/logout", (req, res) => {
   });
 });
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("ERROR:", err);
+
+  if (err.code === "EBADCSRFTOKEN") {
+    return res.status(403).send("Invalid CSRF Token");
+  }
 
   if (err instanceof multer.MulterError) {
     return res.status(400).send(err.message);
@@ -1791,10 +1857,6 @@ app.use((err, req, res, next) => {
   res.status(500).send("Internal Server Error");
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
 
 process.on("SIGINT", async () => {
   await mongoose.connection.close();

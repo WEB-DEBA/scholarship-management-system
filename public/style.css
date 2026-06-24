@@ -6931,3 +6931,342 @@ label {
     font-size: 17px !important;
   }
 }
+/* ===================================
+   PNS COMPLETE MOBILE RESPONSIVE FIX
+   OVERRIDE ALL
+=================================== */
+
+*{
+    box-sizing:border-box !important;
+}
+
+html,body{
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow-x:hidden !important;
+}
+
+
+/* HEADER */
+
+header,
+.navbar,
+nav,
+.topbar,
+.main-header{
+
+    width:100% !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+
+}
+
+
+/* Logo */
+
+.logo,
+.logo-area,
+.brand{
+
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+
+}
+
+
+/* hamburger */
+
+.menu,
+.menu-btn,
+.hamburger,
+#menuBtn{
+
+    display:block !important;
+    font-size:30px !important;
+    cursor:pointer !important;
+
+}
+
+
+/* MAIN */
+
+.container,
+.content,
+.main,
+.dashboard,
+.wrapper{
+
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:10px !important;
+
+}
+
+
+/* ALL CARDS */
+
+.card,
+.box,
+.panel,
+.stat-card,
+.dashboard-card,
+.notice-card,
+.payment-card,
+.section{
+
+    width:100% !important;
+    display:block !important;
+    margin:10px 0 !important;
+    padding:15px !important;
+
+}
+
+
+/* ROW REMOVE */
+
+.row,
+.row-flex,
+.grid,
+.cards,
+.dashboard-grid{
+
+    display:flex !important;
+    flex-direction:column !important;
+    width:100% !important;
+    gap:12px !important;
+
+}
+
+
+/* FORM */
+
+form{
+
+    width:100% !important;
+
+}
+
+
+input,
+select,
+textarea,
+button{
+
+    width:100% !important;
+    max-width:none !important;
+    display:block !important;
+    margin:8px 0 !important;
+
+}
+
+
+/* BUTTON */
+
+button,
+.btn,
+a.btn{
+
+    width:100% !important;
+
+}
+
+
+/* TABLE MOBILE */
+
+.table-container,
+.table-box,
+.table-responsive{
+
+    width:100% !important;
+    overflow-x:auto !important;
+
+}
+
+
+table{
+
+    min-width:850px !important;
+
+}
+
+
+/* FOOTER */
+
+footer{
+
+    width:100% !important;
+    text-align:center !important;
+
+}
+
+
+/* ===================
+ MOBILE
+=================== */
+
+@media(max-width:768px){
+
+
+header,
+.navbar,
+nav,
+.topbar,
+.main-header{
+
+    flex-direction:column !important;
+    gap:10px !important;
+    padding:15px !important;
+
+}
+
+
+.logo{
+
+    justify-content:center !important;
+
+}
+
+
+h1{
+ font-size:22px !important;
+}
+
+
+h2{
+ font-size:18px !important;
+}
+
+
+.card,
+.box,
+.panel,
+.section{
+
+    border-radius:12px !important;
+
+}
+
+
+/* dashboard cards */
+
+.dashboard-card,
+.stat-card{
+
+    text-align:center !important;
+
+}
+
+
+/* menu items */
+
+nav a,
+.menu a{
+
+    width:100% !important;
+    text-align:center !important;
+
+}
+
+
+
+}
+
+
+/* small phone */
+
+@media(max-width:480px){
+
+body{
+
+    font-size:14px !important;
+
+}
+
+
+img{
+
+    max-width:100% !important;
+
+}
+
+
+}
+.menu-toggle{
+    display:none;
+}
+
+@media (max-width:768px){
+
+    .menu-toggle{
+        display:block;
+        font-size:30px;
+        cursor:pointer;
+    }
+
+    .main-nav{
+        display:none;
+        flex-direction:column;
+        width:100%;
+    }
+
+    .main-nav.active{
+        display:flex;
+    }
+}
+.menu-toggle{
+    display:none;
+}
+
+@media (max-width:768px){
+
+    .header{
+        flex-wrap:wrap;
+    }
+
+    .menu-toggle{
+        display:block;
+        font-size:30px;
+        cursor:pointer;
+        margin-left:auto;
+    }
+
+    .main-nav{
+        display:none;
+        width:100%;
+        flex-direction:column;
+        background:#fff;
+        margin-top:10px;
+    }
+
+    .main-nav.active{
+        display:flex !important;
+    }
+
+    .main-nav a{
+        width:100%;
+        padding:12px;
+        border-bottom:1px solid #ddd;
+        text-align:left;
+    }
+}
+@media (max-width:768px){
+
+  .menu-toggle{
+    display:block;
+    cursor:pointer;
+  }
+
+  .main-nav{
+    display:none !important;
+    flex-direction:column;
+    width:100%;
+  }
+
+  .main-nav.show{
+    display:flex !important;
+  }
+}

@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Edit Payment Record</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -110,7 +111,7 @@ Remaining Amount:
         name="paymentDate"
         value="<%= payment.paymentDate || '' %>"
         required
-      >
+
 
       <select name="paymentMode" required>
         <option value="">Select Payment Mode</option>
@@ -150,6 +151,7 @@ Remaining Amount:
 </section>
 
 <%- include("partials/footer") %>
+<script src="/js/main.js"></script>
 
 </body>
 </html>

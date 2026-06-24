@@ -73,6 +73,11 @@
         autocomplete="off"
         novalidate
       >
+      <input 
+  type="hidden" 
+  name="_csrf" 
+  value="<%= csrfToken %>"
+>
 
         <div class="login-top">
           <div class="login-icon">👨‍💼</div>
@@ -172,6 +177,7 @@
   </div>
 
 </section>
+<script src="/js/main.js"></script>
 
 </body>
 </html>
