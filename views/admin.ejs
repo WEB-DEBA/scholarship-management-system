@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 </body>
+
 <body>
 
   <%- include("partials/header") %>
@@ -74,7 +75,6 @@
           </div>
 
           <form action="/admin/notice" method="POST" class="notice-form">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="text" name="title" placeholder="Notice Title" required>
             <input type="text" name="message" placeholder="Notice Message" required>
             <button>Add Notice</button>
@@ -91,7 +91,6 @@
           </div>
 
           <form action="/admin/direct-whatsapp" method="POST" class="notice-form">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="text" name="phone" placeholder="Enter Mobile Number" required>
             <textarea name="message" placeholder="Write WhatsApp message" required></textarea>
             <button>Send WhatsApp</button>
@@ -209,14 +208,13 @@
 
                       <td>
                         <form action="/admin/application/save/<%= s._id %>" method="POST">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                           <button class="btn-success">Save Application</button>
                         </form>
                       </td>
 
                       <td>
                         <form action="/admin/delete/<%= s._id %>" method="POST">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <button class="danger">Delete</button>
                         </form>
                       </td>
@@ -323,7 +321,7 @@
               </small>
 
               <form action="/admin/notice/delete/<%= n._id %>" method="POST">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                 <button class="danger">Delete Notice</button>
               </form>
             </div>
@@ -387,7 +385,7 @@
     </script>
 
     <%- include("partials/footer") %>
-<script src="/js/main.js"></script>
+      <script src="/js/main.js"></script>
 
 </body>
 

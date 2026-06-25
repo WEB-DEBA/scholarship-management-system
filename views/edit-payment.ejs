@@ -1,157 +1,115 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Edit Payment Record</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<%- include("partials/header") %>
+  <%- include("partials/header") %>
 
-<section class="admin-dashboard">
+    <section class="admin-dashboard">
 
-  <div class="admin-hero">
-    <div>
-      <p class="admin-tag">Payment Control</p>
-      <h1>Edit Payment Record</h1>
-      <p>Payment details update karo. Status Success karne par student status bhi Success ho jayega.</p>
-    </div>
+      <div class="admin-hero">
+        <div>
+          <p class="admin-tag">Payment Control</p>
+          <h1>Edit Payment Record</h1>
+          <p>Payment details update karo. Status Success karne par student status bhi Success ho jayega.</p>
+        </div>
 
-    <div class="admin-actions">
-      <a href="/admin/payments" class="logout-btn">Back Payments</a>
-      <a href="/admin" class="logout-btn">Dashboard</a>
-    </div>
-  </div>
-
-  <div class="admin-box full-box">
-    <div class="box-heading">
-      <span>✏️</span>
-      <div>
-        <h2>Update Payment Details</h2>
-        <p>Registration number same rakho taki student record se match ho sake.</p>
+        <div class="admin-actions">
+          <a href="/admin/payments" class="logout-btn">Back Payments</a>
+          <a href="/admin" class="logout-btn">Dashboard</a>
+        </div>
       </div>
-    </div>
 
-    <form action="/admin/payments/edit/<%= payment.id %>" method="POST" class="payment-form">
+      <div class="admin-box full-box">
+        <div class="box-heading">
+          <span>✏️</span>
+          <div>
+            <h2>Update Payment Details</h2>
+            <p>Registration number same rakho taki student record se match ho sake.</p>
+          </div>
+        </div>
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Student Name"
-        value="<%= payment.name || '' %>"
-        required
-      >
+        <form action="/admin/payments/edit/<%= payment.id %>" method="POST" class="payment-form">
+         
+          <input type="text" name="name" placeholder="Student Name" value="<%= payment.name || '' %>" required>
 
-      <input
-        type="text"
-        name="registrationNo"
-        placeholder="Registration Number"
-        value="<%= payment.registrationNo || '' %>"
-        required
-      >
+          <input type="text" name="registrationNo" placeholder="Registration Number"
+            value="<%= payment.registrationNo || '' %>" required>
 
-      <input
-        type="text"
-        name="rollNo"
-        placeholder="Roll Number"
-        value="<%= payment.rollNo || '' %>"
-      >
+          <input type="text" name="rollNo" placeholder="Roll Number" value="<%= payment.rollNo || '' %>">
 
-      <select name="semester" required>
-  <option value="<%= payment.semester || '' %>">
-    <%= payment.semester || 'Select Semester' %>
-  </option>
-  <option>1st Semester</option>
-  <option>2nd Semester</option>
-  <option>3rd Semester</option>
-  <option>4th Semester</option>
-  <option>5th Semester</option>
-  <option>6th Semester</option>
-</select>
+          <select name="semester" required>
+            <option value="<%= payment.semester || '' %>">
+              <%= payment.semester || 'Select Semester' %>
+            </option>
+            <option>1st Semester</option>
+            <option>2nd Semester</option>
+            <option>3rd Semester</option>
+            <option>4th Semester</option>
+            <option>5th Semester</option>
+            <option>6th Semester</option>
+          </select>
 
-      <select name="branch" required>
-  <option value="<%= payment.branch || '' %>">
-    <%= payment.branch || 'Select Branch' %>
-  </option>
-  <option>Computer Science Engineering (CSE)</option>
-  <option>Civil Engineering</option>
-  <option>Electrical Engineering</option>
-  <option>Electronics & Telecommunication Engineering</option>
-  <option>Mechanical Engineering</option>
-</select>
-      <input
-  type="number"
-  name="totalFee"
-  placeholder="Total Course Fee ₹"
-  value="<%= payment.totalFee || '' %>"
-  required
->
-<%
-const remainingEdit = Math.max(
-0,
-Number(payment.totalFee || 0) - Number(payment.amount || 0)
-);
-%>
+          <select name="branch" required>
+            <option value="<%= payment.branch || '' %>">
+              <%= payment.branch || 'Select Branch' %>
+            </option>
+            <option>Computer Science Engineering (CSE)</option>
+            <option>Civil Engineering</option>
+            <option>Electrical Engineering</option>
+            <option>Electronics & Telecommunication Engineering</option>
+            <option>Mechanical Engineering</option>
+          </select>
+          <input type="number" name="totalFee" placeholder="Total Course Fee ₹" value="<%= payment.totalFee || '' %>"
+            required>
+          <% const remainingEdit=Math.max( 0, Number(payment.totalFee || 0) - Number(payment.amount || 0) ); %>
 
-<p>
-Remaining Amount:
-₹<%= remainingEdit %>
-</p>
+            <p>
+              Remaining Amount:
+              ₹<%= remainingEdit %>
+            </p>
 
-<input
-  type="number"
-  name="amount"
-  placeholder="Paid Amount ₹"
-  value="<%= payment.amount || '' %>"
-  required
->
-      <input
-        type="date"
-        name="paymentDate"
-        value="<%= payment.paymentDate || '' %>"
-        required
+            <input type="number" name="amount" placeholder="Paid Amount ₹" value="<%= payment.amount || '' %>" required>
+            <input type="date" name="paymentDate" value="<%= payment.paymentDate || '' %>" required <select
+              name="paymentMode" required>
+            <option value="">Select Payment Mode</option>
+            <option <%=payment.paymentMode==="Bank Transfer" ? "selected" : "" %>>Bank Transfer</option>
+            <option <%=payment.paymentMode==="DBT" ? "selected" : "" %>>DBT</option>
+            <option <%=payment.paymentMode==="UPI" ? "selected" : "" %>>UPI</option>
+            <option <%=payment.paymentMode==="Cash" ? "selected" : "" %>>Cash</option>
+            <option <%=payment.paymentMode==="Other" ? "selected" : "" %>>Other</option>
+            </select>
 
+            <input type="text" name="transactionId" placeholder="Transaction ID / Reference No"
+              value="<%= payment.transactionId || '' %>">
 
-      <select name="paymentMode" required>
-        <option value="">Select Payment Mode</option>
-        <option <%= payment.paymentMode === "Bank Transfer" ? "selected" : "" %>>Bank Transfer</option>
-        <option <%= payment.paymentMode === "DBT" ? "selected" : "" %>>DBT</option>
-        <option <%= payment.paymentMode === "UPI" ? "selected" : "" %>>UPI</option>
-        <option <%= payment.paymentMode === "Cash" ? "selected" : "" %>>Cash</option>
-        <option <%= payment.paymentMode === "Other" ? "selected" : "" %>>Other</option>
-      </select>
+            <select name="status" required>
+              <option value="">Payment Status</option>
+              <option <%=payment.status==="Success" ? "selected" : "" %>>Success</option>
+              <option <%=payment.status==="Pending" ? "selected" : "" %>>Pending</option>
+              <option <%=payment.status==="Failed" ? "selected" : "" %>>Failed</option>
+            </select>
 
-      <input
-        type="text"
-        name="transactionId"
-        placeholder="Transaction ID / Reference No"
-        value="<%= payment.transactionId || '' %>"
-      >
+            <textarea name="remark" placeholder="Remark / Note"><%= payment.remark || '' %></textarea>
 
-      <select name="status" required>
-        <option value="">Payment Status</option>
-        <option <%= payment.status === "Success" ? "selected" : "" %>>Success</option>
-        <option <%= payment.status === "Pending" ? "selected" : "" %>>Pending</option>
-        <option <%= payment.status === "Failed" ? "selected" : "" %>>Failed</option>
-      </select>
+            <button type="submit">
+              Update Payment Record
+            </button>
 
-      <textarea
-        name="remark"
-        placeholder="Remark / Note"
-      ><%= payment.remark || '' %></textarea>
+        </form>
+      </div>
 
-      <button type="submit">
-        Update Payment Record
-      </button>
+    </section>
 
-    </form>
-  </div>
-
-</section>
-
-<%- include("partials/footer") %>
-<script src="/js/main.js"></script>
+    <%- include("partials/footer") %>
+      <script src="/js/main.js"></script>
 
 </body>
+
 </html>

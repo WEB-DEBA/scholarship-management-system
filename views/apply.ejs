@@ -1,423 +1,245 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Scholarship Application</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<%- include("partials/header") %>
+  <%- include("partials/header") %>
 
-<section class="application-hero">
-  <div class="application-hero-content">
-    <p class="application-tag">Government Scholarship Portal</p>
+    <section class="application-hero">
+      <div class="application-hero-content">
+        <p class="application-tag">Government Scholarship Portal</p>
 
-    <h1>Fresh Scholarship Application</h1>
+        <h1>Fresh Scholarship Application</h1>
 
-    <p>
-      Fill details carefully as per Aadhaar,
-      bank passbook and college records.
-    </p>
-  </div>
-</section>
-
-<% if(error){ %>
-<div class="alert-error">
-  <%= error %>
-</div>
-<% } %>
-
-<section class="application-wrapper" id="applicationForm">
-
-  <form
-    action="/apply"
-    method="POST"
-    enctype="multipart/form-data"
-    class="application-form"
-  >
-  <input 
- type="hidden"
- name="_csrf"
- value="<%= csrfToken %>"
->
-
-    <div class="form-title">
-      <span>🇮🇳</span>
-
-      <h2>
-        Student Scholarship Application
-      </h2>
-
-      <p>
-        All fields should match official documents.
-      </p>
-    </div>
-
-    <!-- PERSONAL DETAILS -->
-
-    <div class="section-title">
-      <b>1</b>
-      <h3>Student Personal Details</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <input
-        type="text"
-        name="name"
-        placeholder="Student Full Name as per Aadhaar"
-        required
-      >
-
-      <input
-        type="text"
-        name="fatherName"
-        placeholder="Father / Guardian Name"
-        required
-      >
-
-      <input
-        type="text"
-        name="motherName"
-        placeholder="Mother Name"
-        required
-      >
-
-      <input
-        type="date"
-        name="dob"
-        required
-      >
-
-      <select name="gender" required>
-        <option value="">
-          Select Gender
-        </option>
-
-        <option>Male</option>
-        <option>Female</option>
-        <option>Other</option>
-      </select>
-
-      <input
-        type="text"
-        name="aadhaar"
-        placeholder="12 Digit Aadhaar Number"
-        maxlength="12"
-        required
-      >
-
-      <input
-        type="text"
-        name="phone"
-        placeholder="Mobile Number"
-        maxlength="10"
-        required
-      >
-
-      <input
-        type="email"
-        name="email"
-        placeholder="Email Address"
-      >
-
-    </div>
-
-    <!-- CATEGORY -->
-
-    <div class="section-title">
-      <b>2</b>
-      <h3>Category & Income Details</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <select name="caste" required>
-        <option value="">
-          Select Category
-        </option>
-
-        <option>SC</option>
-        <option>ST</option>
-        <option>OBC</option>
-        <option>General</option>
-      </select>
-
-      <input
-        type="text"
-        name="casteCertificate"
-        placeholder="Caste Certificate Number"
-      >
-
-      <input
-        type="number"
-        name="income"
-        placeholder="Annual Family Income"
-        required
-      >
-
-      <input
-        type="text"
-        name="incomeCertificate"
-        placeholder="Income Certificate Number"
-      >
-
-    </div>
-
-    <!-- ACADEMIC -->
-
-    <div class="section-title">
-      <b>3</b>
-      <h3>Institute & Academic Details</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <input
-        type="text"
-        name="college"
-        placeholder="College / Institute Name"
-        required
-      >
-      <input
-  type="text"
-  name="course"
-  value="Diploma"
-  placeholder="Course Name"
-  required
->
-
-      
-
-      <select name="branch" required>
-  <option value="">Select Branch</option>
-
-  <option>Computer Science Engineering (CSE)</option>
-  <option>Civil Engineering</option>
-  <option>Electrical Engineering</option>
-  <option>Electronics & Telecommunication Engineering</option>
-  <option>Mechanical Engineering</option>
-
-</select>
-
-      <select name="semester" required>
-  <option value="">Select Semester</option>
-
-  <option>1st Semester</option>
-  <option>2nd Semester</option>
-  <option>3rd Semester</option>
-  <option>4th Semester</option>
-  <option>5th Semester</option>
-  <option>6th Semester</option>
-</select>
-
-      <input
-        type="text"
-        name="rollNo"
-        placeholder="Roll Number"
-        required
-      >
-
-      <input
-        type="text"
-        name="registrationNo"
-        placeholder="Registration Number"
-        required
-      >
-
-      <input
-        type="text"
-        name="percentage"
-        placeholder="Last Exam Percentage / CGPA"
-      >
-
-    </div>
-
-    <!-- BANK -->
-
-    <div class="section-title">
-      <b>4</b>
-      <h3>Bank Account Details</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <input
-        type="text"
-        name="bankName"
-        placeholder="Bank Name"
-        required
-      >
-
-      <input
-        type="text"
-        name="accountNo"
-        placeholder="Bank Account Number"
-        required
-      >
-
-      <input
-        type="text"
-        name="ifsc"
-        placeholder="IFSC Code"
-        required
-      >
-
-      <input
-        type="text"
-        name="accountHolder"
-        placeholder="Account Holder Name"
-        required
-      >
-
-    </div>
-
-    <!-- ADDRESS -->
-
-    <div class="section-title">
-      <b>5</b>
-      <h3>Address Details</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <input
-        type="text"
-        name="village"
-        placeholder="Village / City"
-        required
-      >
-
-      <input
-        type="text"
-        name="post"
-        placeholder="Post Office"
-        required
-      >
-
-      <input
-        type="text"
-        name="district"
-        placeholder="District"
-        required
-      >
-
-      <input
-        type="text"
-        name="state"
-        placeholder="State"
-        required
-      >
-
-      <input
-        type="text"
-        name="pincode"
-        placeholder="Pincode"
-        required
-      >
-
-    </div>
-
-    <!-- DOCUMENT UPLOAD -->
-
-    <div class="section-title">
-      <b>6</b>
-      <h3>Upload Required Documents</h3>
-    </div>
-
-    <div class="form-grid">
-
-      <div class="upload-box">
-        <label>Aadhaar Card Upload</label>
-        <input
-          type="file"
-          name="aadhaarFile"
-          accept=".jpg,.jpeg,.png,.pdf"
-          required
-        >
+        <p>
+          Fill details carefully as per Aadhaar,
+          bank passbook and college records.
+        </p>
       </div>
+    </section>
 
-      <div class="upload-box">
-        <label>Caste Certificate Upload</label>
-        <input
-          type="file"
-          name="casteFile"
-          accept=".jpg,.jpeg,.png,.pdf"
-          required
-        >
+    <% if(error){ %>
+      <div class="alert-error">
+        <%= error %>
       </div>
+      <% } %>
 
-      <div class="upload-box">
-        <label>Income Certificate Upload</label>
-        <input
-          type="file"
-          name="incomeFile"
-          accept=".jpg,.jpeg,.png,.pdf"
-          required
-        >
-      </div>
+        <section class="application-wrapper" id="applicationForm">
 
-      <div class="upload-box">
-        <label>Passport Photo Upload</label>
-        <input
-          type="file"
-          name="photoFile"
-          accept=".jpg,.jpeg,.png"
-          required
-        >
-      </div>
+          <form action="/apply" method="POST" enctype="multipart/form-data" class="application-form">
 
-      <div class="upload-box">
-        <label>Bank Passbook Upload</label>
-        <input
-          type="file"
-          name="bankFile"
-          accept=".jpg,.jpeg,.png,.pdf"
-          required
-        >
-      </div>
+            <div class="form-title">
+              <span>🇮🇳</span>
 
-      <div class="upload-box">
-        <label>Marksheet Upload</label>
-        <input
-          type="file"
-          name="marksheetFile"
-          accept=".jpg,.jpeg,.png,.pdf"
-          required
-        >
-      </div>
+              <h2>
+                Student Scholarship Application
+              </h2>
 
-    </div>
+              <p>
+                All fields should match official documents.
+              </p>
+            </div>
 
-    <!-- DECLARATION -->
+            <!-- PERSONAL DETAILS -->
 
-    <label class="declaration-box">
-  <input type="checkbox" name="declaration" required>
-  <span>I hereby declare that all information provided is true and valid.</span>
-</label>
+            <div class="section-title">
+              <b>1</b>
+              <h3>Student Personal Details</h3>
+            </div>
 
-    <!-- SUBMIT -->
+            <div class="form-grid">
 
-    <button
-      type="submit"
-      class="application-submit"
-    >
-      Submit Scholarship Application
-    </button>
-    <script>
-document.querySelector("form").addEventListener("submit", function() {
-  document.getElementById("submitBtn").disabled = true;
-  document.getElementById("submitBtn").innerText = "Submitting...";
-});
-</script>
+              <input type="text" name="name" placeholder="Student Full Name as per Aadhaar" required>
 
-  </form>
+              <input type="text" name="fatherName" placeholder="Father / Guardian Name" required>
 
-</section>
+              <input type="text" name="motherName" placeholder="Mother Name" required>
 
-<%- include("partials/footer") %>
-<script src="/js/main.js"></script>
+              <input type="date" name="dob" required>
+
+              <select name="gender" required>
+                <option value="">
+                  Select Gender
+                </option>
+
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+
+              <input type="text" name="aadhaar" placeholder="12 Digit Aadhaar Number" maxlength="12" required>
+
+              <input type="text" name="phone" placeholder="Mobile Number" maxlength="10" required>
+
+              <input type="email" name="email" placeholder="Email Address">
+
+            </div>
+
+            <!-- CATEGORY -->
+
+            <div class="section-title">
+              <b>2</b>
+              <h3>Category & Income Details</h3>
+            </div>
+
+            <div class="form-grid">
+
+              <select name="caste" required>
+                <option value="">
+                  Select Category
+                </option>
+
+                <option>SC</option>
+                <option>ST</option>
+                <option>OBC</option>
+                <option>General</option>
+              </select>
+
+              <input type="text" name="casteCertificate" placeholder="Caste Certificate Number">
+
+              <input type="number" name="income" placeholder="Annual Family Income" required>
+
+              <input type="text" name="incomeCertificate" placeholder="Income Certificate Number">
+
+            </div>
+
+            <!-- ACADEMIC -->
+
+            <div class="section-title">
+              <b>3</b>
+              <h3>Institute & Academic Details</h3>
+            </div>
+
+            <div class="form-grid">
+
+              <input type="text" name="college" placeholder="College / Institute Name" required>
+              <input type="text" name="course" value="Diploma" placeholder="Course Name" required>
+
+
+
+              <select name="branch" required>
+                <option value="">Select Branch</option>
+
+                <option>Computer Science Engineering (CSE)</option>
+                <option>Civil Engineering</option>
+                <option>Electrical Engineering</option>
+                <option>Electronics & Telecommunication Engineering</option>
+                <option>Mechanical Engineering</option>
+
+              </select>
+
+              <select name="semester" required>
+                <option value="">Select Semester</option>
+
+                <option>1st Semester</option>
+                <option>2nd Semester</option>
+                <option>3rd Semester</option>
+                <option>4th Semester</option>
+                <option>5th Semester</option>
+                <option>6th Semester</option>
+              </select>
+
+              <input type="text" name="rollNo" placeholder="Roll Number" required>
+
+              <input type="text" name="registrationNo" placeholder="Registration Number" required>
+
+              <input type="text" name="percentage" placeholder="Last Exam Percentage / CGPA">
+
+            </div>
+
+            <!-- BANK -->
+
+            <div class="section-title">
+              <b>4</b>
+              <h3>Bank Account Details</h3>
+            </div>
+
+            <div class="form-grid">
+
+              <input type="text" name="bankName" placeholder="Bank Name" required>
+
+              <input type="text" name="accountNo" placeholder="Bank Account Number" required>
+
+              <input type="text" name="ifsc" placeholder="IFSC Code" required>
+
+              <input type="text" name="accountHolder" placeholder="Account Holder Name" required>
+
+            </div>
+
+            <!-- ADDRESS -->
+
+            <div class="section-title">
+              <b>5</b>
+              <h3>Address Details</h3>
+            </div>
+
+            <div class="form-grid">
+
+              <input type="text" name="village" placeholder="Village / City" required>
+
+              <input type="text" name="post" placeholder="Post Office" required>
+
+              <input type="text" name="district" placeholder="District" required>
+
+              <input type="text" name="state" placeholder="State" required>
+
+              <input type="text" name="pincode" placeholder="Pincode" required>
+
+            </div>
+
+            <!-- DOCUMENT UPLOAD -->
+
+            <div class="section-title">
+              <b>6</b>
+              <h3>Upload Required Documents</h3>
+            </div>
+
+            <div class="form-grid">
+
+              <div class="upload-box">
+                <label>Caste Certificate Upload</label>
+                <input type="file" name="casteFile" accept=".jpg,.jpeg,.png,.pdf" required>
+              </div>
+
+              <div class="upload-box">
+                <label>Income Certificate Upload</label>
+                <input type="file" name="incomeFile" accept=".jpg,.jpeg,.png,.pdf" required>
+              </div>
+
+            </div>
+
+            <!-- DECLARATION -->
+
+            <label class="declaration-box">
+              <input type="checkbox" name="declaration" required>
+              <span>I hereby declare that all information provided is true and valid.</span>
+            </label>
+
+            <!-- SUBMIT -->
+
+            <button id="submitBtn" type="submit" class="application-submit">
+              Submit Scholarship Application
+            </button>
+            <script>
+              document.querySelector("form").addEventListener("submit", function () {
+                document.getElementById("submitBtn").disabled = true;
+                document.getElementById("submitBtn").innerText = "Submitting...";
+              });
+            </script>
+
+          </form>
+
+        </section>
+
+        <%- include("partials/footer") %>
+          <script src="/js/main.js"></script>
 
 </body>
+
 </html>

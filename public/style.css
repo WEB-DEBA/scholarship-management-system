@@ -111,7 +111,7 @@ img {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 .main-nav a {
   padding: 12px 16px;
@@ -2125,7 +2125,7 @@ textarea:focus {
 
 /* Navigation */
 .main-nav {
-  gap: 18px !important;
+  gap: 3px !important;
 }
 
 .main-nav a {
@@ -2212,7 +2212,7 @@ textarea:focus {
 .main-nav {
   display: flex !important;
   align-items: center !important;
-  gap: 16px !important;
+  gap: 3px !important;
 }
 
 .main-nav a {
@@ -6579,7 +6579,7 @@ label {
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
 }
 
 .main-nav a {
@@ -7118,7 +7118,7 @@ nav,
 .main-header{
 
     flex-direction:column !important;
-    gap:10px !important;
+    gap:3px !important;
     padding:15px !important;
 
 }

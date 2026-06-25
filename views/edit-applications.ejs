@@ -1,68 +1,73 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Edit Saved Application</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<%- include("partials/header") %>
+  <%- include("partials/header") %>
 
-<section class="admin-dashboard">
+    <section class="admin-dashboard">
 
-  <div class="admin-hero">
-    <div>
-      <p class="admin-tag">Saved Application</p>
-      <h1>Edit Application</h1>
-      <p>Saved application details update karo.</p>
-    </div>
+      <div class="admin-hero">
+        <div>
+          <p class="admin-tag">Saved Application</p>
+          <h1>Edit Application</h1>
+          <p>Saved application details update karo.</p>
+        </div>
 
-    <div class="admin-actions">
-      <a href="/admin/application-details" class="logout-btn">Back</a>
-      <a href="/admin" class="logout-btn">Dashboard</a>
-    </div>
-  </div>
+        <div class="admin-actions">
+          <a href="/admin/application-details" class="logout-btn">Back</a>
+          <a href="/admin" class="logout-btn">Dashboard</a>
+        </div>
+      </div>
 
-  <div class="admin-box full-box">
-    <form action="/admin/application-details/edit/<%= application._id %>" method="POST" class="payment-form">
+      <div class="admin-box full-box">
+        <form action="/admin/application-details/edit/<%= application._id %>" method="POST" class="payment-form">
+          
+          <input type="text" name="name" value="<%= application.name || '' %>" placeholder="Student Name" required>
+          <input type="text" name="fatherName" value="<%= application.fatherName || '' %>" placeholder="Father Name">
+          <input type="text" name="motherName" value="<%= application.motherName || '' %>" placeholder="Mother Name">
+          <input type="text" name="aadhaar" value="<%= application.aadhaar || '' %>" placeholder="Aadhaar">
+          <input type="text" name="phone" value="<%= application.phone || '' %>" placeholder="Phone">
+          <input type="email" name="email" value="<%= application.email || '' %>" placeholder="Email">
 
-      <input type="text" name="name" value="<%= application.name || '' %>" placeholder="Student Name" required>
-      <input type="text" name="fatherName" value="<%= application.fatherName || '' %>" placeholder="Father Name">
-      <input type="text" name="motherName" value="<%= application.motherName || '' %>" placeholder="Mother Name">
-      <input type="text" name="aadhaar" value="<%= application.aadhaar || '' %>" placeholder="Aadhaar">
-      <input type="text" name="phone" value="<%= application.phone || '' %>" placeholder="Phone">
-      <input type="email" name="email" value="<%= application.email || '' %>" placeholder="Email">
+          <input type="text" name="college" value="<%= application.college || '' %>" placeholder="College">
+          <input type="text" name="branch" value="<%= application.branch || '' %>" placeholder="Branch">
+          <input type="text" name="semester" value="<%= application.semester || '' %>" placeholder="Semester">
+          <input type="text" name="rollNo" value="<%= application.rollNo || '' %>" placeholder="Roll No">
+          <input type="text" name="registrationNo" value="<%= application.registrationNo || '' %>"
+            placeholder="Registration No">
 
-      <input type="text" name="college" value="<%= application.college || '' %>" placeholder="College">
-      <input type="text" name="branch" value="<%= application.branch || '' %>" placeholder="Branch">
-      <input type="text" name="semester" value="<%= application.semester || '' %>" placeholder="Semester">
-      <input type="text" name="rollNo" value="<%= application.rollNo || '' %>" placeholder="Roll No">
-      <input type="text" name="registrationNo" value="<%= application.registrationNo || '' %>" placeholder="Registration No">
+          <input type="text" name="caste" value="<%= application.caste || '' %>" placeholder="Category">
+          <input type="text" name="income" value="<%= application.income || '' %>" placeholder="Income">
 
-      <input type="text" name="caste" value="<%= application.caste || '' %>" placeholder="Category">
-      <input type="text" name="income" value="<%= application.income || '' %>" placeholder="Income">
+          <input type="text" name="bankName" value="<%= application.bankName || '' %>" placeholder="Bank Name">
+          <input type="text" name="accountNo" value="<%= application.accountNo || '' %>" placeholder="Account No">
+          <input type="text" name="ifsc" value="<%= application.ifsc || '' %>" placeholder="IFSC">
+          <input type="text" name="accountHolder" value="<%= application.accountHolder || '' %>"
+            placeholder="Account Holder">
 
-      <input type="text" name="bankName" value="<%= application.bankName || '' %>" placeholder="Bank Name">
-      <input type="text" name="accountNo" value="<%= application.accountNo || '' %>" placeholder="Account No">
-      <input type="text" name="ifsc" value="<%= application.ifsc || '' %>" placeholder="IFSC">
-      <input type="text" name="accountHolder" value="<%= application.accountHolder || '' %>" placeholder="Account Holder">
+          <input type="text" name="village" value="<%= application.village || '' %>" placeholder="Village">
+          <input type="text" name="post" value="<%= application.post || '' %>" placeholder="Post">
+          <input type="text" name="district" value="<%= application.district || '' %>" placeholder="District">
+          <input type="text" name="state" value="<%= application.state || '' %>" placeholder="State">
+          <input type="text" name="pincode" value="<%= application.pincode || '' %>" placeholder="Pincode">
 
-      <input type="text" name="village" value="<%= application.village || '' %>" placeholder="Village">
-      <input type="text" name="post" value="<%= application.post || '' %>" placeholder="Post">
-      <input type="text" name="district" value="<%= application.district || '' %>" placeholder="District">
-      <input type="text" name="state" value="<%= application.state || '' %>" placeholder="State">
-      <input type="text" name="pincode" value="<%= application.pincode || '' %>" placeholder="Pincode">
+          <button type="submit">Update Saved Application</button>
 
-      <button type="submit">Update Saved Application</button>
+        </form>
+      </div>
 
-    </form>
-  </div>
+    </section>
 
-</section>
-
-<%- include("partials/footer") %>
-<script src="/js/main.js"></script>
+    <%- include("partials/footer") %>
+      <script src="/js/main.js"></script>
 
 </body>
+
 </html>

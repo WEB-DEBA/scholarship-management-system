@@ -1,170 +1,188 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Saved Application Details</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
 
-<%- include("partials/header") %>
+  <%- include("partials/header") %>
 
-<section class="admin-dashboard">
+    <section class="admin-dashboard">
 
-  <div class="admin-hero">
-    <div>
-      <p class="admin-tag">Saved Application Records</p>
-      <h1>Application Details</h1>
-      <p>Saved student applications yahan permanently store aur manage hongi.</p>
-    </div>
+      <div class="admin-hero">
+        <div>
+          <p class="admin-tag">Saved Application Records</p>
+          <h1>Application Details</h1>
+          <p>Saved student applications yahan permanently store aur manage hongi.</p>
+        </div>
 
-    <div class="admin-actions">
-      <a href="/admin" class="logout-btn">Back Dashboard</a>
-      <a href="/admin/payments" class="logout-btn">Payment Records</a>
-      <a href="/logout" class="logout-btn">Logout</a>
-    </div>
-  </div>
-
-  <div class="admin-stats">
-    <div class="admin-stat-card">
-      <span>📁</span>
-      <p>Total Saved</p>
-      <h2><%= applications.length %></h2>
-    </div>
-
-    <div class="admin-stat-card success-card">
-      <span>✅</span>
-      <p>Success</p>
-      <h2><%= applications.filter(a => a.status === "Success").length %></h2>
-    </div>
-
-    <div class="admin-stat-card pending-card">
-      <span>⏳</span>
-      <p>Pending</p>
-      <h2><%= applications.filter(a => a.status === "Pending").length %></h2>
-    </div>
-
-    <div class="admin-stat-card failed-card">
-      <span>❌</span>
-      <p>Failed</p>
-      <h2><%= applications.filter(a => a.status === "Failed").length %></h2>
-    </div>
-  </div>
-
-  <div class="admin-box full-box">
-    <div class="box-heading">
-      <span>🗃️</span>
-      <div>
-        <h2>Saved Applications</h2>
-        <p>Admin dashboard se save ki gayi applications ka full record.</p>
+        <div class="admin-actions">
+          <a href="/admin" class="logout-btn">Back Dashboard</a>
+          <a href="/admin/payments" class="logout-btn">Payment Records</a>
+          <a href="/logout" class="logout-btn">Logout</a>
+        </div>
       </div>
-    </div>
 
-    <div class="table-wrap">
-      <table class="premium-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Aadhaar</th>
-            <th>Phone</th>
-            <th>College</th>
-            <th>Branch / Semester</th>
-            <th>Saved At</th>
-            <th>Documents</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+      <div class="admin-stats">
+        <div class="admin-stat-card">
+          <span>📁</span>
+          <p>Total Saved</p>
+          <h2>
+            <%= applications.length %>
+          </h2>
+        </div>
 
-        <tbody>
-          <% if (applications.length === 0) { %>
-            <tr>
-              <td colspan="9" style="text-align:center; padding:30px;">
-                No saved applications found
-              </td>
-            </tr>
-          <% } %>
+        <div class="admin-stat-card success-card">
+          <span>✅</span>
+          <p>Success</p>
+          <h2>
+            <%= applications.filter(a=> a.status === "Success").length %>
+          </h2>
+        </div>
 
-          <% applications.forEach(a => { %>
-            <tr>
-              <td>
-                <b><%= a.name || "N/A" %></b><br>
-                <small>Reg: <%= a.registrationNo || "N/A" %></small><br>
-                <small>Roll: <%= a.rollNo || "N/A" %></small>
-              </td>
+        <div class="admin-stat-card pending-card">
+          <span>⏳</span>
+          <p>Pending</p>
+          <h2>
+            <%= applications.filter(a=> a.status === "Pending").length %>
+          </h2>
+        </div>
 
-              <td><%= a.aadhaar || "N/A" %></td>
-              <td><%= a.phone || "N/A" %></td>
-              <td><%= a.college || "N/A" %></td>
+        <div class="admin-stat-card failed-card">
+          <span>❌</span>
+          <p>Failed</p>
+          <h2>
+            <%= applications.filter(a=> a.status === "Failed").length %>
+          </h2>
+        </div>
+      </div>
 
-              <td>
-  <%= a.branch || "N/A" %><br>
-  <small><%= a.semester || "N/A" %></small>
-</td>
+      <div class="admin-box full-box">
+        <div class="box-heading">
+          <span>🗃️</span>
+          <div>
+            <h2>Saved Applications</h2>
+            <p>Admin dashboard se save ki gayi applications ka full record.</p>
+          </div>
+        </div>
 
-<td>
-  <%= a.savedAt || "N/A" %>
-</td>
-              <td>
-                <div class="doc-mini-links">
-                  <% if (a.aadhaarFile) { %>
-                    <a href="/uploads/<%= a.aadhaarFile %>" target="_blank">Aadhaar</a>
-                  <% } %>
+        <div class="table-wrap">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Aadhaar</th>
+                <th>Phone</th>
+                <th>College</th>
+                <th>Branch / Semester</th>
+                <th>Saved At</th>
+                <th>Documents</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-                  <% if (a.casteFile) { %>
-                    <a href="/uploads/<%= a.casteFile %>" target="_blank">Caste</a>
-                  <% } %>
+            <tbody>
+              <% if (applications.length===0) { %>
+                <tr>
+                  <td colspan="9" style="text-align:center; padding:30px;">
+                    No saved applications found
+                  </td>
+                </tr>
+                <% } %>
 
-                  <% if (a.incomeFile) { %>
-                    <a href="/uploads/<%= a.incomeFile %>" target="_blank">Income</a>
-                  <% } %>
+                  <% applications.forEach(a=> { %>
+                    <tr>
+                      <td>
+                        <b>
+                          <%= a.name || "N/A" %>
+                        </b><br>
+                        <small>Reg: <%= a.registrationNo || "N/A" %></small><br>
+                        <small>Roll: <%= a.rollNo || "N/A" %></small>
+                      </td>
 
-                  <% if (a.photoFile) { %>
-                    <a href="/uploads/<%= a.photoFile %>" target="_blank">Photo</a>
-                  <% } %>
+                      <td>
+                        <%= a.aadhaar || "N/A" %>
+                      </td>
+                      <td>
+                        <%= a.phone || "N/A" %>
+                      </td>
+                      <td>
+                        <%= a.college || "N/A" %>
+                      </td>
 
-                  <% if (a.bankFile) { %>
-                    <a href="/uploads/<%= a.bankFile %>" target="_blank">Bank</a>
-                  <% } %>
+                      <td>
+                        <%= a.branch || "N/A" %><br>
+                          <small>
+                            <%= a.semester || "N/A" %>
+                          </small>
+                      </td>
 
-                  <% if (a.marksheetFile) { %>
-                    <a href="/uploads/<%= a.marksheetFile %>" target="_blank">Marksheet</a>
-                  <% } %>
-                </div>
-              </td>
+                      <td>
+                        <%= a.savedAt || "N/A" %>
+                      </td>
+                      <td>
+                        <div class="doc-mini-links">
+                          <% if (a.aadhaarFile) { %>
+                            <a href="/uploads/<%= a.aadhaarFile %>" target="_blank">Aadhaar</a>
+                            <% } %>
 
-              <td>
-                <div class="action-links">
-                  <a href="/admin/saved-application/<%= a._id %>" class="view-btn">
-                    Full Profile
-                  </a>
+                              <% if (a.casteFile) { %>
+                                <a href="/uploads/<%= a.casteFile %>" target="_blank">Caste</a>
+                                <% } %>
 
-                  <a href="/admin/application-details/edit/<%= a._id %>" class="view-btn">
-                    Edit
-                  </a>
+                                  <% if (a.incomeFile) { %>
+                                    <a href="/uploads/<%= a.incomeFile %>" target="_blank">Income</a>
+                                    <% } %>
 
-                  <form
-                    action="/admin/application-details/delete/<%= a._id %>"
-                    method="POST"
-                    style="display:inline;"
-                    onsubmit="return confirm('Delete this saved application?');"
-                  >
-                    <button type="submit" class="danger">
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </div>
+                                      <% if (a.photoFile) { %>
+                                        <a href="/uploads/<%= a.photoFile %>" target="_blank">Photo</a>
+                                        <% } %>
 
-</section>
+                                          <% if (a.bankFile) { %>
+                                            <a href="/uploads/<%= a.bankFile %>" target="_blank">Bank</a>
+                                            <% } %>
 
-<%- include("partials/footer") %>
-<script src="/js/main.js"></script>
+                                              <% if (a.marksheetFile) { %>
+                                                <a href="/uploads/<%= a.marksheetFile %>" target="_blank">Marksheet</a>
+                                                <% } %>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="action-links">
+                          <a href="/admin/saved-application/<%= a._id %>" class="view-btn">
+                            Full Profile
+                          </a>
+
+                          <a href="/admin/application-details/edit/<%= a._id %>" class="view-btn">
+                            Edit
+                          </a>
+
+                          <form action="/admin/application-details/delete/<%= a._id %>" method="POST"
+                            style="display:inline;" onsubmit="return confirm('Delete this saved application?');">
+                           
+                            <button type="submit" class="danger">
+                              Delete
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <%- include("partials/footer") %>
+      <script src="/js/main.js"></script>
 
 </body>
+
 </html>

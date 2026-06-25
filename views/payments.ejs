@@ -36,7 +36,7 @@
         </div>
 
         <form action="/admin/payments" method="POST" class="payment-form">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          
           <input type="text" name="name" placeholder="Student Name" required>
           <input type="text" name="registrationNo" placeholder="Registration Number" required>
           <input type="text" name="rollNo" placeholder="Roll Number">
@@ -198,7 +198,7 @@ const remaining = Number(p.totalFee || 0) - totalPaid;
                       <td>
                         <form action="/admin/payments/delete/<%= p.id %>" method="POST">
 
-<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
 
 <button class="danger">Delete</button>
 

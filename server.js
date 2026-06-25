@@ -4,8 +4,9 @@ const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
-const csrf = require("csurf");
+// const csrf = require("csurf");
 const { fileTypeFromFile } = require("file-type");
 const rateLimit = require("express-rate-limit");
 const express = require("express");
@@ -34,6 +35,10 @@ const mailTransporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
   },
+
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 const PORT = process.env.PORT || 3000;
@@ -76,33 +81,42 @@ app.use(
 );
 // app.use(mongoSanitize());
 app.disable("x-powered-by");
+app.use(cookieParser());
+
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+
   store: MongoStore.create({
     mongoUrl: mongoURI,
     collectionName: "sessions"
   }),
+
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/"
+    secure: false,
+    sameSite: "lax"
   },
+
   name: "pns.sid"
 }));
 
 
-// CSRF MUST come after session
-app.use(csrf({
-  cookie: false
-}));
-app.use((req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
-  next();
-});
+// app.use(csrf({
+//   cookie: {
+//     httpOnly: true,
+//     sameSite: "lax",
+//     secure: false
+//   }
+// }));
+
+
+// app.use((req, res, next) => {
+//   res.locals.csrfToken = req.csrfToken();
+//   next();
+// });
 
 const uploadDir = path.join(__dirname, "uploads");
 
@@ -113,8 +127,8 @@ app.get("/uploads/:file", isAdmin, (req, res) => {
   const requestedPath = path.resolve(filePath);
 
   if (!requestedPath.startsWith(uploadPath + path.sep)) {
- return res.status(403).send("Access Denied");
-}
+    return res.status(403).send("Access Denied");
+  }
   if (!fs.existsSync(filePath)) {
     return res.status(404).send("File not found");
   }
@@ -323,20 +337,20 @@ async function createDefaultAdmin() {
 }
 
 mongoose.connect(mongoURI)
-.then(async()=>{
+  .then(async () => {
 
-console.log("✅ MongoDB Connected");
+    console.log("✅ MongoDB Connected");
 
-await createDefaultAdmin();
+    await createDefaultAdmin();
 
-app.listen(PORT,()=>{
- console.log(`Server running http://localhost:${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server running http://localhost:${PORT}`);
+    });
 
-})
-.catch(err=>{
- console.log("❌ Mongo Error",err);
-});
+  })
+  .catch(err => {
+    console.log("❌ Mongo Error", err);
+  });
 
 mongoose.connection.once("open", () => {
   console.log("🟢 MongoDB Database Connected Successfully");
@@ -352,7 +366,6 @@ const loginLimiter = rateLimit({
   message: "Too many login attempts. Try again later."
 });
 
-app.post("/login", loginLimiter);
 
 function isAdmin(req, res, next) {
   if (req.session.admin) return next();
@@ -370,8 +383,17 @@ async function addLog(action, studentId = "", details = "") {
 }
 
 app.get("/", async (req, res) => {
-  const notices = await Notice.find().sort({ createdAt: -1 }).lean();
-  res.render("index", { notices });
+  try {
+    const notices = await Notice.find()
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.render("index", { notices });
+
+  } catch (err) {
+    console.log("HOME ERROR:", err);
+    res.send("Home page error");
+  }
 });
 
 app.get("/notice", async (req, res) => {
@@ -380,7 +402,9 @@ app.get("/notice", async (req, res) => {
 });
 
 app.get("/apply", (req, res) => {
-  res.render("apply", { error: null });
+  res.render("apply", {
+    error: null
+  });
 });
 app.post("/apply", upload.fields([
   { name: "aadhaarFile", maxCount: 1 },
@@ -393,16 +417,17 @@ app.post("/apply", upload.fields([
   try {
     const regNo = (req.body.registrationNo || "").trim();
     const aadhaar = (req.body.aadhaar || "").trim();
-   if (
- req.body.email &&
- !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(req.body.email)
-) {
- return res.render("apply", {
-  error: "Invalid Email Address"
- });
-}
+    if (
+      req.body.email &&
+      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(req.body.email)
+    ) {
+      return res.render("apply", {
+        error: "Invalid Email Address"
+      });
+    }
 
-    if (!/^[2-9][0-9]{11}$/.test(aadhaar)) {
+
+    if (!/^\d{12}$/.test(aadhaar)) {
       return res.render("apply", {
         error: "Invalid Aadhaar Number"
       });
@@ -440,11 +465,14 @@ app.post("/apply", upload.fields([
         !detectedType ||
         !allowedTypes.includes(detectedType.mime)
       ) {
-        try {
-          fs.unlinkSync(
-            path.join(uploadDir, uploaded.filename)
-          );
-        } catch { }
+
+        for (const field in files) {
+          try {
+            fs.unlinkSync(
+              path.join(uploadDir, files[field][0].filename)
+            );
+          } catch { }
+        }
 
         return res.render("apply", {
           error: "Invalid file uploaded"
@@ -472,26 +500,26 @@ app.post("/apply", upload.fields([
           error: "Registration or Aadhaar already exists"
         });
       }
-newStudent = new Student({
-  ...req.body,
+      newStudent = new Student({
+        ...req.body,
 
-  registrationNo: regNo,
-  aadhaar: aadhaar,
+        registrationNo: regNo,
+        aadhaar: aadhaar,
 
-  aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
-  casteFile: files?.casteFile?.[0]?.filename || "",
-  incomeFile: files?.incomeFile?.[0]?.filename || "",
-  photoFile: files?.photoFile?.[0]?.filename || "",
-  bankFile: files?.bankFile?.[0]?.filename || "",
-  marksheetFile: files?.marksheetFile?.[0]?.filename || "",
+        aadhaarFile: files?.aadhaarFile?.[0]?.filename || "",
+        casteFile: files?.casteFile?.[0]?.filename || "",
+        incomeFile: files?.incomeFile?.[0]?.filename || "",
+        photoFile: files?.photoFile?.[0]?.filename || "",
+        bankFile: files?.bankFile?.[0]?.filename || "",
+        marksheetFile: files?.marksheetFile?.[0]?.filename || "",
 
-  status: "Pending",
-  paymentStatus: "Pending",
-  isDeleted: false,
-  appliedDate: new Date().toLocaleDateString()
-});
+        status: "Pending",
+        paymentStatus: "Pending",
+        isDeleted: false,
+        appliedDate: new Date().toLocaleDateString()
+      });
 
-await newStudent.save();
+      await newStudent.save();
 
       await session.commitTransaction();
       session.endSession();
@@ -506,10 +534,10 @@ await newStudent.save();
 
     // Email background me jayega, page load block nahi karega
     mailTransporter.sendMail({
-  from: process.env.EMAIL_USER,
-  to: process.env.ADMIN_EMAIL || "erswain.pns@gmail.com",
-  subject: "New Scholarship Application Submitted",
-  html: `
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL || "ssms.pns1@gmail.com",
+      subject: "New Scholarship Application Submitted",
+      html: `
     <h2>New Scholarship Application</h2>
 
     <p><b>Name:</b> ${newStudent.name || "N/A"}</p>
@@ -533,9 +561,9 @@ ${newStudent.college || "N/A"}</p>
 
     <p>Check admin panel for full details.</p>
   `
-}).catch(err => {
-  console.log("Apply email failed:", err.message);
-});
+    }).catch(err => {
+      console.log("Apply email failed:", err.message);
+    });
 
     return res.redirect(`/check?reg=${encodeURIComponent(regNo)}`);
 
@@ -544,7 +572,7 @@ ${newStudent.college || "N/A"}</p>
 
     if (error.code === 11000) {
       return res.render("apply", {
-        error: "⚠️ This Registration Number or Aadhaar Number is already registered."
+        error: "Registration Number or Aadhaar already exists"
       });
     }
 
@@ -552,60 +580,58 @@ ${newStudent.college || "N/A"}</p>
       error: "⚠️ Something went wrong. Please try again."
     });
   }
-});app.post("/check", async (req,res)=>{
+}); app.post("/check", async (req, res) => {
 
-try{
+  try {
 
-const searchValue =
-(req.body.searchValue || "").trim();
-
-
-const student = await Student.findOne({
-$or:[
- {registrationNo:searchValue},
- {aadhaar:searchValue}
-],
-isDeleted:false
-}).lean();
+    const searchValue =
+      (req.body.searchValue || "").trim();
 
 
-let payment=null;
+    const student = await Student.findOne({
+      $or: [
+        { registrationNo: searchValue },
+        { aadhaar: searchValue }
+      ],
+      isDeleted: false
+    }).lean();
 
 
-if(student){
-
-payment = await Payment.findOne({
-registrationNo:student.registrationNo
-})
-.sort({createdAt:-1})
-.lean();
-
-}
+    let payment = null;
 
 
-res.render("check",{
-student,
-payment,
-searched:true,
-csrfToken:req.csrfToken()
-});
+    if (student) {
+
+      payment = await Payment.findOne({
+        registrationNo: student.registrationNo
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    }
 
 
-}catch(err){
+    res.render("check", {
+      student,
+      payment,
+      searched: true
+    });
 
-console.log("CHECK ERROR:",err);
+
+  } catch (err) {
+
+    console.log("CHECK ERROR:", err);
 
 
-res.render("check",{
-student:null,
-payment:null,
-searched:true,
-csrfToken:req.csrfToken()
-});
+    res.render("check", {
+      student: null,
+      payment: null,
+      searched: true
+    });
 
-}
+  }
 
-});app.get("/check", async (req, res) => {
+}); app.get("/check", async (req, res) => {
   try {
 
     const reg = (req.query.reg || "").trim();
@@ -614,8 +640,7 @@ csrfToken:req.csrfToken()
       return res.render("check", {
         student: null,
         payment: null,
-        searched: false,
-        csrfToken: req.csrfToken()
+        searched: false
       });
     }
 
@@ -627,14 +652,13 @@ csrfToken:req.csrfToken()
     const payment = await Payment.findOne({
       registrationNo: reg
     })
-    .sort({ createdAt: -1 })
-    .lean();
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.render("check", {
       student,
       payment,
-      searched: true,
-      csrfToken: req.csrfToken()
+      searched: true
     });
 
   } catch (err) {
@@ -644,8 +668,7 @@ csrfToken:req.csrfToken()
     res.render("check", {
       student: null,
       payment: null,
-      searched: false,
-      csrfToken: req.csrfToken()
+      searched: false
     });
 
   }
@@ -653,12 +676,11 @@ csrfToken:req.csrfToken()
 
 app.get("/login", (req, res) => {
   res.render("login", {
-    error: null,
-    csrfToken: req.csrfToken()
+    error: null
   });
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   const admin = await Admin.findOne({
@@ -675,8 +697,7 @@ app.post("/login", async (req, res) => {
     await bcrypt.compare(password, fakeHash);
 
     return res.render("login", {
-      error: "Invalid email/phone or password",
-      csrfToken: req.csrfToken()
+      error: "Invalid email/phone or password"
     });
   }
 
@@ -684,12 +705,12 @@ app.post("/login", async (req, res) => {
 
   if (!match) {
     return res.render("login", {
-      error: "Invalid email/phone or password",
-      csrfToken: req.csrfToken()
+      error: "Invalid email/phone or password"
     });
   }
 
   req.session.regenerate((err) => {
+
     if (err) {
       return res.render("login", {
         error: "Session Error"
@@ -699,14 +720,16 @@ app.post("/login", async (req, res) => {
     req.session.admin = true;
     req.session.adminId = admin._id;
 
-    res.redirect("/admin");
+    req.session.save(() => {
+      res.redirect("/admin");
+    });
+
   });
 });
 app.get("/forgot-password", (req, res) => {
   res.render("forgot-password", {
     error: null,
-    success: null,
-    csrfToken: req.csrfToken()
+    success: null
   });
 });
 
@@ -728,10 +751,9 @@ app.post("/forgot-password", otpLimiter, async (req, res) => {
 
     if (!admin) {
       return res.render("forgot-password", {
-  error: "Admin not found",
-  success: null,
-  csrfToken: req.csrfToken()
-});
+        error: "Admin not found",
+        success: null
+      });
     }
     const otp = Math.floor(
       100000 + Math.random() * 900000
@@ -767,11 +789,10 @@ app.post("/forgot-password", otpLimiter, async (req, res) => {
     console.log("❌ EMAIL ERROR:");
     console.log(error);
 
-   res.render("forgot-password", {
-  error: error.message,
-  success: null,
-  csrfToken: req.csrfToken()
-});
+    res.render("forgot-password", {
+      error: error.message,
+      success: null
+    });
 
   }
 });
@@ -856,7 +877,9 @@ app.get("/admin/analytics", isAdmin, async (req, res) => {
 });
 app.get("/admin/backup", isAdmin, async (req, res) => {
   try {
-    const students = await Student.find().lean();
+    const students = await Student.find({
+      isDeleted: false
+    }).lean();
     const payments = await Payment.find().lean();
     const notices = await Notice.find().lean();
     const savedApplications = await SavedApplication.find().lean();
@@ -885,8 +908,12 @@ app.get("/admin/backup", isAdmin, async (req, res) => {
     res.send("Backup failed");
   }
 });
-
-app.post("/reset-password", async (req, res) => {
+const verifyOtpLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: "Too many attempts"
+});
+app.post("/reset-password", verifyOtpLimiter, async (req, res) => {
   const admin = await Admin.findOne({
     $or: [
       { email: req.body.email },
@@ -995,8 +1022,8 @@ app.post("/admin/profile", isAdmin, async (req, res) => {
         return res.render("admin-profile", {
           admin,
           error:
-          "Password must contain uppercase, lowercase and number",
-          success:null
+            "Password must contain uppercase, lowercase and number",
+          success: null
         });
       }
 
@@ -1012,19 +1039,19 @@ app.post("/admin/profile", isAdmin, async (req, res) => {
 
     res.render("admin-profile", {
       admin,
-      error:null,
-      success:"Profile updated successfully"
+      error: null,
+      success: "Profile updated successfully"
     });
 
 
-  } catch(err){
+  } catch (err) {
 
-    console.log("PROFILE ERROR:",err);
+    console.log("PROFILE ERROR:", err);
 
     res.render("admin-profile", {
-      admin:{},
-      error:"Email or Phone already exists",
-      success:null
+      admin: {},
+      error: "Email or Phone already exists",
+      success: null
     });
 
   }
@@ -1045,9 +1072,19 @@ app.get("/admin", isAdmin, async (req, res) => {
       students,
       notices,
       payments,
-      successCount: students.filter(s => s.status === "Success").length,
-      failedCount: students.filter(s => s.status === "Failed").length,
-      pendingCount: students.filter(s => s.status === "Pending").length
+
+      successCount: students.filter(
+        s => s.status === "Success"
+      ).length,
+
+      failedCount: students.filter(
+        s => s.status === "Failed"
+      ).length,
+
+      pendingCount: students.filter(
+        s => s.status === "Pending"
+      ).length
+
     });
   } catch (error) {
     console.log(error);
@@ -1241,7 +1278,9 @@ app.get("/admin/application-details", isAdmin, async (req, res) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  res.render("application-details", { applications });
+  res.render("application-details", {
+    applications
+  });
 });
 
 app.get("/admin/saved-application/:id", isAdmin, async (req, res) => {
@@ -1287,13 +1326,11 @@ app.post("/admin/application-details/delete/:id", isAdmin, async (req, res) => {
 });
 
 
-
 app.get("/admin/payments", isAdmin, async (req, res) => {
   const payments = await Payment.find().sort({ createdAt: -1 }).lean();
- res.render("payments", {
-  payments,
-  csrfToken: req.csrfToken()
-});
+  res.render("payments", {
+    payments
+  });
 });
 app.post("/admin/payments", isAdmin, async (req, res) => {
   const payment = await Payment.create({
@@ -1375,10 +1412,9 @@ app.get("/admin/payments/add/:id", isAdmin, async (req, res) => {
 
 
     res.render("add-payment", {
-  payment,
-  remaining,
-  csrfToken: req.csrfToken()
-});
+      payment,
+      remaining
+    });
 
 
   } catch (err) {
@@ -1904,19 +1940,64 @@ app.post("/logout", (req, res) => {
     res.clearCookie("pns.sid");
     res.redirect("/");
   });
-});
+});// GLOBAL ERROR HANDLER
 app.use((err, req, res, next) => {
+
   console.error("ERROR:", err);
 
+  // CSRF ERROR
   if (err.code === "EBADCSRFTOKEN") {
-    return res.status(403).send("Invalid CSRF Token");
+
+    return res.status(403).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <title>CSRF Error</title>
+      <style>
+      body{
+        font-family:Arial;
+        text-align:center;
+        padding:50px;
+      }
+      button{
+        padding:10px 20px;
+        cursor:pointer;
+      }
+      </style>
+      </head>
+
+      <body>
+
+      <h2>⚠️ Security Token Expired</h2>
+
+      <p>Page refresh karo aur dobara submit karo.</p>
+
+      <button onclick="location.href='/'">
+      Go Home
+      </button>
+
+      </body>
+      </html>
+    `);
   }
 
+
+  // MULTER FILE ERROR
   if (err instanceof multer.MulterError) {
-    return res.status(400).send(err.message);
+
+    return res.status(400).send(
+      "File Upload Error: " + err.message
+    );
+
   }
 
-  res.status(500).send("Internal Server Error");
+
+  // NORMAL ERROR
+  res.status(500).send(`
+    <h2>Internal Server Error</h2>
+    <p>${err.message}</p>
+  `);
+
 });
 
 

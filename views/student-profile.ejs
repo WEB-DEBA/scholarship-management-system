@@ -14,7 +14,7 @@
   <div class="profile-top-card">
     <div class="profile-photo-box">
       <% if (student.photoFile) { %>
-        <img src="/uploads/<%= student.photoFile %>" alt="Student Photo">
+        
       <% } else { %>
         <div class="profile-avatar">
           <%= student.name ? student.name.charAt(0).toUpperCase() : "S" %>
